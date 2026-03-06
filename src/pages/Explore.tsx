@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { exportTripPdf } from "@/lib/exportPdf";
 import ExploreNavbar from "@/components/explore/ExploreNavbar";
 import ExploreHeader from "@/components/explore/ExploreHeader";
 import TierSelector from "@/components/explore/TierSelector";
@@ -343,7 +344,39 @@ const Explore = () => {
           />
         )}
 
-        {/* Bottom CTA Banner */}
+        {/* Export Itinerary PDF */}
+        {recommendations.length > 0 && totalPlannedCost > 0 && (
+          <div className="bg-card rounded-2xl shadow-sm border border-border p-5 text-center space-y-3">
+            <h2 className="font-display text-lg font-bold text-foreground">📥 Export Your Itinerary</h2>
+            <p className="text-sm text-muted-foreground">
+              Download a PDF with your trip details, budget breakdown, and day-by-day activities with locations and costs.
+            </p>
+            <Button
+              onClick={() =>
+                exportTripPdf({
+                  trip: {
+                    ...trip,
+                    allocations: trip.allocations,
+                  },
+                  currency,
+                  itinerary,
+                  recommendations: recommendations.map((r) => ({
+                    id: r.id,
+                    name: r.name,
+                    estimatedCostPerPerson: r.estimatedCostPerPerson,
+                    duration: r.duration,
+                    mapsQuery: r.mapsQuery,
+                    category: r.category,
+                  })),
+                })
+              }
+              className="bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full px-8 font-bold"
+            >
+              📥 Download Itinerary PDF
+            </Button>
+          </div>
+        )}
+
         <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-6 text-center">
           <h3 className="font-display text-xl font-bold text-primary-foreground mb-1">
             Ready to log your actual spends? 💸

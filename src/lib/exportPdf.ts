@@ -43,7 +43,7 @@ export function exportTripPdf({
   currency: CurrencyExport;
   expenses?: ExpenseExport[];
   itinerary?: Record<string, string[]>;
-  recommendations?: { id: string; name: string; estimatedCostPerPerson: number; duration: string }[];
+  recommendations?: { id: string; name: string; estimatedCostPerPerson: number; duration: string; mapsQuery?: string; category?: string }[];
 }) {
   const doc = new jsPDF();
   const s = currency.symbol;
@@ -150,31 +150,89 @@ export function exportTripPdf({
   // Itinerary
   const itineraryDays = Object.entries(itinerary).filter(([, ids]) => ids.length > 0);
   if (itineraryDays.length > 0 && recommendations.length > 0) {
+    const totalPeople = trip.adults + (trip.children || 0);
     checkPage(20);
     doc.setFontSize(14);
     doc.setTextColor(45, 45, 45);
-    doc.text("Itinerary", margin, y);
+    doc.text("Day-by-Day Itinerary", margin, y);
     y += 8;
     doc.setFontSize(10);
 
+    let grandTotal = 0;
+
     itineraryDays.sort().forEach(([dayKey, ids]) => {
-      checkPage(12);
+      checkPage(16);
       const dayNum = dayKey.replace("day", "");
+
+      // Day date
+      let dayLabel = `Day ${dayNum}`;
+      if (trip.checkIn) {
+        const d = new Date(trip.checkIn);
+        d.setDate(d.getDate() + parseInt(dayNum) - 1);
+        dayLabel += ` — ${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
+      }
+
       doc.setTextColor(255, 107, 107);
-      doc.text(`Day ${dayNum}`, margin, y);
+      doc.setFontSize(11);
+      doc.text(dayLabel, margin, y);
       y += 6;
-      doc.setTextColor(45, 45, 45);
+      doc.setFontSize(10);
+
+      let dayTotal = 0;
+
       ids.forEach((id) => {
-        checkPage(8);
+        checkPage(14);
         const act = recommendations.find((r) => r.id === id);
         if (act) {
-          const cost = act.estimatedCostPerPerson > 0 ? `${s}${act.estimatedCostPerPerson}` : "Free";
-          doc.text(`• ${act.name} — ${cost} pp, ${act.duration}`, margin + 4, y);
-          y += 6;
+          const groupCost = act.estimatedCostPerPerson * totalPeople;
+          dayTotal += groupCost;
+          const costStr = act.estimatedCostPerPerson > 0
+            ? `${s}${groupCost.toFixed(0)} (${s}${act.estimatedCostPerPerson}/pp)`
+            : "Free";
+
+          doc.setTextColor(45, 45, 45);
+          doc.text(`• ${act.name}`, margin + 4, y);
+          y += 5;
+          doc.setTextColor(120, 120, 120);
+          doc.setFontSize(9);
+          let meta = `${costStr} · ${act.duration}`;
+          if (act.category) meta += ` · ${act.category}`;
+          doc.text(meta, margin + 8, y);
+          y += 5;
+          if (act.mapsQuery) {
+            doc.setTextColor(100, 140, 200);
+            const loc = act.mapsQuery.length > 60 ? act.mapsQuery.substring(0, 60) + "..." : act.mapsQuery;
+            doc.text(`📍 ${loc}`, margin + 8, y);
+            y += 5;
+          }
+          doc.setFontSize(10);
         }
       });
-      y += 4;
+
+      grandTotal += dayTotal;
+      doc.setTextColor(255, 107, 107);
+      doc.setFontSize(9);
+      doc.text(`Day ${dayNum} total: ${s}${dayTotal.toFixed(0)}`, margin + 4, y);
+      y += 8;
+      doc.setFontSize(10);
     });
+
+    // Grand total
+    checkPage(16);
+    doc.setDrawColor(230, 230, 230);
+    doc.line(margin, y, margin + contentW, y);
+    y += 6;
+    doc.setFontSize(11);
+    doc.setTextColor(45, 45, 45);
+    doc.text(`Total Itinerary Cost: ${s}${grandTotal.toFixed(0)}`, margin, y);
+    y += 6;
+    if (trip.allocations) {
+      const remaining = trip.allocations.activities.amount - grandTotal;
+      const color = remaining >= 0 ? [34, 139, 34] : [220, 50, 50];
+      doc.setTextColor(color[0], color[1], color[2]);
+      doc.text(`Activities Budget Remaining: ${s}${remaining.toFixed(0)}`, margin, y);
+      y += 10;
+    }
   }
 
   // Verdict
