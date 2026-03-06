@@ -171,10 +171,10 @@ const Step2BudgetSplit = ({ tripData, onNext, onBack }: Step2Props) => {
 
       <div className="text-center mb-6">
         <h2 className="font-display text-xl font-bold text-foreground">
-          Here's how Roamie suggests splitting your budget 🧡
+          {estimating ? "Roamie is estimating your budget split… ✨" : "Here's how Roamie suggests splitting your budget 🧡"}
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Drag the sliders to make them yours — just keep it at 100%
+          {estimating ? "Based on real cost estimates for your trip" : "Drag the sliders to make them yours — just keep it at 100%"}
         </p>
       </div>
 
