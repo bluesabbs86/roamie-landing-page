@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useAutoSaveTrip } from "@/hooks/useAutoSaveTrip";
 import { useNavigate } from "react-router-dom";
 import { Currency, currencies } from "@/contexts/CurrencyContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +92,9 @@ const Explore = () => {
       }
     } catch {}
   }, []);
+
+  // Auto-save back to database if loaded from saved trips
+  useAutoSaveTrip([itinerary, recommendations, expenses]);
 
   const { activitiesAllocated, activitiesSpent, activitiesRemaining, totalSpent, totalRemaining, budgetPerPerson } =
     useMemo(() => {

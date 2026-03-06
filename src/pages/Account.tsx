@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { exportTripPdf } from "@/lib/exportPdf";
 import BottomNav from "@/components/dashboard/BottomNav";
 import TripChecklist from "@/components/account/TripChecklist";
-import { LogOut, Trash2, Download, MapPin, Plus } from "lucide-react";
+import { LogOut, Trash2, Download, MapPin, Plus, Play } from "lucide-react";
 
 interface SavedItinerary {
   id: string;
@@ -198,6 +198,24 @@ const Account = () => {
     });
   };
 
+  const loadTrip = (it: SavedItinerary) => {
+    const trip = it.trip_data;
+    const currency = trip.currency || { symbol: "$", code: "USD", name: "US Dollar" };
+    
+    // Populate localStorage with saved trip data
+    localStorage.setItem("roamie:trip", JSON.stringify(trip));
+    localStorage.setItem("roamie:currency", JSON.stringify(currency));
+    localStorage.setItem("roamie:expenses", JSON.stringify(it.expenses || []));
+    localStorage.setItem("roamie:itinerary", JSON.stringify(it.itinerary || {}));
+    localStorage.setItem("roamie:recommendations", JSON.stringify(it.recommendations || []));
+    // Track which saved itinerary is loaded for auto-save
+    localStorage.setItem("roamie:active_itinerary_id", it.id);
+    
+    markSessionSaved();
+    toast({ title: `Loaded "${it.name}" — editing live! ✈️` });
+    navigate("/dashboard");
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
@@ -339,12 +357,19 @@ const Account = () => {
                         {/* Actions */}
                         <div className="flex gap-2">
                           <Button
+                            size="sm"
+                            onClick={() => loadTrip(it)}
+                            className="rounded-full flex-1 bg-gradient-to-r from-primary to-secondary text-primary-foreground"
+                          >
+                            <Play className="h-4 w-4 mr-1" /> Load & Edit
+                          </Button>
+                          <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleExportPdf(it)}
-                            className="rounded-full flex-1"
+                            className="rounded-full"
                           >
-                            <Download className="h-4 w-4 mr-1" /> Download PDF
+                            <Download className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="outline"
