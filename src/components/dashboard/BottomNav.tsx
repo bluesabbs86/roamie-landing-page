@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 const tabs = [
   { key: "plan", icon: "✈️", label: "Plan", path: "/plan" },
   { key: "budget", icon: "💰", label: "Budget", path: "/dashboard" },
-  { key: "explore", icon: "🎯", label: "Explore", path: null },
+  { key: "explore", icon: "🎯", label: "Explore", path: "/explore" },
 ];
 
 const BottomNav = () => {
