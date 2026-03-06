@@ -338,6 +338,7 @@ const Explore = () => {
             adults={trip.adults}
             children={trip.children}
             onRemoveFromDay={handleRemoveFromDay}
+            onReorder={handleReorder}
           />
         )}
 
