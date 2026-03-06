@@ -130,6 +130,7 @@ const Account = () => {
           .eq("id", existing.id);
         if (error) throw error;
         toast({ title: "Trip updated! 🧡" });
+        markSessionSaved();
       } else {
         if (itineraries.length >= 5) {
           toast({ title: "Maximum 5 saved trips. Delete one to save a new one.", variant: "destructive" });
@@ -147,6 +148,7 @@ const Account = () => {
         });
         if (error) throw error;
         toast({ title: "Trip saved to your account! 🎉" });
+        markSessionSaved();
       }
       loadData();
     } catch (e: any) {
