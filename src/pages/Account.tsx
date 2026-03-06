@@ -98,11 +98,6 @@ const Account = () => {
 
   const saveCurrentTrip = async () => {
     if (!user) return;
-    if (itineraries.length >= 5) {
-      toast({ title: "Maximum 5 saved trips. Delete one to save a new one.", variant: "destructive" });
-      return;
-    }
-
     try {
       const tripData = JSON.parse(localStorage.getItem("roamie:trip") || "null");
       if (!tripData) {
