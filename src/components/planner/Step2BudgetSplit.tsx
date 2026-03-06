@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { supabase } from "@/integrations/supabase/client";
 import type { TripData } from "./Step1TripDetails";
 
 interface Step2Props {
@@ -34,6 +35,60 @@ const Step2BudgetSplit = ({ tripData, onNext, onBack }: Step2Props) => {
     activities: 15,
     food: 10,
   });
+  const [estimating, setEstimating] = useState(true);
+
+  useEffect(() => {
+    const fetchEstimates = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("budget-estimate", {
+          body: {
+            departure: tripData.departure,
+            destination: tripData.destination,
+            checkIn: tripData.checkIn,
+            checkOut: tripData.checkOut,
+            nights: tripData.nights,
+            adults: tripData.adults,
+            children: tripData.children,
+            totalBudget: tripData.totalBudget,
+            currencyCode: selectedCurrency.code,
+            currencySymbol: selectedCurrency.symbol,
+          },
+        });
+
+        if (!error && data?.flightTotal != null && data?.hotelTotal != null) {
+          const budget = tripData.totalBudget;
+          let flightPct = Math.round((data.flightTotal / budget) * 100);
+          let hotelPct = Math.round((data.hotelTotal / budget) * 100);
+
+          // Clamp each to 0-85, ensure combined doesn't exceed 90
+          flightPct = Math.min(85, Math.max(0, flightPct));
+          hotelPct = Math.min(85, Math.max(0, hotelPct));
+          if (flightPct + hotelPct > 90) {
+            const ratio = 90 / (flightPct + hotelPct);
+            flightPct = Math.round(flightPct * ratio);
+            hotelPct = Math.round(hotelPct * ratio);
+          }
+
+          const remainder = 100 - flightPct - hotelPct;
+          const activitiesPct = Math.round(remainder / 2);
+          const foodPct = remainder - activitiesPct;
+
+          setPercents({
+            flights: flightPct,
+            hotel: hotelPct,
+            activities: activitiesPct,
+            food: foodPct,
+          });
+        }
+      } catch (err) {
+        console.error("Budget estimate failed, using defaults:", err);
+      } finally {
+        setEstimating(false);
+      }
+    };
+
+    fetchEstimates();
+  }, [tripData, selectedCurrency]);
 
   const handleSlider = useCallback(
     (changedKey: CatKey, newVal: number) => {
@@ -116,10 +171,10 @@ const Step2BudgetSplit = ({ tripData, onNext, onBack }: Step2Props) => {
 
       <div className="text-center mb-6">
         <h2 className="font-display text-xl font-bold text-foreground">
-          Here's how Roamie suggests splitting your budget 🧡
+          {estimating ? "Roamie is estimating your budget split… ✨" : "Here's how Roamie suggests splitting your budget 🧡"}
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Drag the sliders to make them yours — just keep it at 100%
+          {estimating ? "Based on real cost estimates for your trip" : "Drag the sliders to make them yours — just keep it at 100%"}
         </p>
       </div>
 
@@ -176,7 +231,7 @@ const Step2BudgetSplit = ({ tripData, onNext, onBack }: Step2Props) => {
       </div>
 
       <p className="text-xs text-muted-foreground italic text-center mb-6">
-        These are Roamie's smart suggestions — drag to make them yours.
+        {estimating ? "Calculating smart defaults…" : "These are Roamie's AI-powered suggestions — drag to make them yours."}
       </p>
 
       <Button
