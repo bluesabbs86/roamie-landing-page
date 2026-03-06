@@ -199,6 +199,12 @@ const Explore = () => {
     localStorage.setItem("roamie:itinerary", JSON.stringify(updated));
   };
 
+  const handleReorder = (dayKey: string, newOrder: string[]) => {
+    const updated = { ...itinerary, [dayKey]: newOrder };
+    setItinerary(updated);
+    localStorage.setItem("roamie:itinerary", JSON.stringify(updated));
+  };
+
   const totalPlannedCost = useMemo(() => {
     if (!trip) return 0;
     const totalPeople = trip.adults + (trip.children || 0);
@@ -332,6 +338,7 @@ const Explore = () => {
             adults={trip.adults}
             children={trip.children}
             onRemoveFromDay={handleRemoveFromDay}
+            onReorder={handleReorder}
           />
         )}
 

@@ -1,6 +1,21 @@
 import { useState } from "react";
 import { Currency } from "@/contexts/CurrencyContext";
 import { toast } from "@/hooks/use-toast";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import SortableActivity from "./SortableActivity";
 
 interface Activity {
   id: string;
@@ -20,6 +35,7 @@ interface ItineraryBuilderProps {
   adults: number;
   children: number;
   onRemoveFromDay: (activityId: string, day: number) => void;
+  onReorder: (dayKey: string, newOrder: string[]) => void;
 }
 
 const ItineraryBuilder = ({
@@ -31,10 +47,16 @@ const ItineraryBuilder = ({
   adults,
   children,
   onRemoveFromDay,
+  onReorder,
 }: ItineraryBuilderProps) => {
   const [activeDay, setActiveDay] = useState(1);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const totalPeople = adults + (children || 0);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  );
 
   const getDayDate = (dayNum: number) => {
     if (!checkIn) return "";
@@ -50,6 +72,18 @@ const ItineraryBuilder = ({
     .filter(Boolean) as Activity[];
 
   const dayTotal = dayActivities.reduce((s, a) => s + a.estimatedCostPerPerson * totalPeople, 0);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = dayActivityIds.indexOf(active.id as string);
+    const newIndex = dayActivityIds.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newOrder = arrayMove(dayActivityIds, oldIndex, newIndex);
+    onReorder(dayKey, newOrder);
+  };
 
   return (
     <div>
@@ -84,56 +118,34 @@ const ItineraryBuilder = ({
             <p className="text-sm text-muted-foreground">Add activities using the buttons above!</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {dayActivities.map((act) => (
-              <div key={act.id} className="bg-card rounded-xl shadow-sm border border-border p-3 flex items-center gap-3">
-                <span className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-sm">
-                  {act.categoryIcon}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm truncate">{act.name}</p>
-                  <p className="text-xs text-muted-foreground">{act.category} · {act.duration}</p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-sm font-bold text-primary">
-                    {act.estimatedCostPerPerson === 0 ? "Free" : `${currency.symbol}${(act.estimatedCostPerPerson * totalPeople).toFixed(0)}`}
-                  </p>
-                  {confirmDelete === act.id ? (
-                    <div className="flex gap-1 mt-1">
-                      <button
-                        onClick={() => {
-                          onRemoveFromDay(act.id, activeDay);
-                          setConfirmDelete(null);
-                          toast({ title: `Removed from Day ${activeDay} 🗑️`, variant: "destructive" });
-                        }}
-                        className="text-[10px] text-red-500 font-semibold"
-                      >
-                        Yes
-                      </button>
-                      <button
-                        onClick={() => setConfirmDelete(null)}
-                        className="text-[10px] text-muted-foreground"
-                      >
-                        No
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDelete(act.id)}
-                      className="text-xs text-muted-foreground hover:text-red-500 mt-1"
-                    >
-                      ✕
-                    </button>
-                  )}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={dayActivityIds} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {dayActivities.map((act) => (
+                  <SortableActivity
+                    key={act.id}
+                    activity={act}
+                    currency={currency}
+                    totalPeople={totalPeople}
+                    activeDay={activeDay}
+                    confirmDelete={confirmDelete}
+                    onConfirmDelete={setConfirmDelete}
+                    onRemove={(id, day) => {
+                      onRemoveFromDay(id, day);
+                      toast({ title: `Removed from Day ${day} 🗑️`, variant: "destructive" });
+                    }}
+                  />
+                ))}
+
+                {/* Day summary */}
+                <div className="flex justify-between items-center pt-2 text-sm">
+                  <span className="font-bold text-primary">
+                    Day {activeDay} total: {currency.symbol}{dayTotal.toFixed(0)}
+                  </span>
                 </div>
               </div>
-            ))}
-
-            {/* Day summary */}
-            <div className="flex justify-between items-center pt-2 text-sm">
-              <span className="font-bold text-primary">Day {activeDay} total: {currency.symbol}{dayTotal.toFixed(0)}</span>
-            </div>
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>
