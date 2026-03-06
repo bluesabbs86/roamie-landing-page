@@ -198,6 +198,24 @@ const Account = () => {
     });
   };
 
+  const loadTrip = (it: SavedItinerary) => {
+    const trip = it.trip_data;
+    const currency = trip.currency || { symbol: "$", code: "USD", name: "US Dollar" };
+    
+    // Populate localStorage with saved trip data
+    localStorage.setItem("roamie:trip", JSON.stringify(trip));
+    localStorage.setItem("roamie:currency", JSON.stringify(currency));
+    localStorage.setItem("roamie:expenses", JSON.stringify(it.expenses || []));
+    localStorage.setItem("roamie:itinerary", JSON.stringify(it.itinerary || {}));
+    localStorage.setItem("roamie:recommendations", JSON.stringify(it.recommendations || []));
+    // Track which saved itinerary is loaded for auto-save
+    localStorage.setItem("roamie:active_itinerary_id", it.id);
+    
+    markSessionSaved();
+    toast({ title: `Loaded "${it.name}" — editing live! ✈️` });
+    navigate("/dashboard");
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
