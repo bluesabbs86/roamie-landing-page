@@ -61,7 +61,7 @@ Return nothing else. No markdown. No explanation.`;
           },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 3000,
+        max_tokens: 8000,
       }),
     });
 
@@ -80,7 +80,19 @@ Return nothing else. No markdown. No explanation.`;
 
     content = content.replace(/```json\s*/gi, "").replace(/```\s*/gi, "").trim();
 
-    const parsed = JSON.parse(content);
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      // Try to salvage truncated JSON by finding the last complete object
+      const lastComplete = content.lastIndexOf("}");
+      if (lastComplete > 0) {
+        const trimmed = content.substring(0, lastComplete + 1) + "]";
+        parsed = JSON.parse(trimmed);
+      } else {
+        throw new Error("Could not parse AI response as JSON");
+      }
+    }
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
