@@ -1,0 +1,4 @@
+project_id = "mpleigjbaouoykvoekyu"
+
+[functions.trip-feasibility]
+verify_jwt = false
