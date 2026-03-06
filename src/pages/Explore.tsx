@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAutoSaveTrip } from "@/hooks/useAutoSaveTrip";
+import { useSyncTripData } from "@/hooks/useSyncTripData";
 import { useNavigate } from "react-router-dom";
 import { Currency, currencies } from "@/contexts/CurrencyContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,33 +66,8 @@ const Explore = () => {
   const [error, setError] = useState(false);
   const [activeTier, setActiveTier] = useState("budget");
 
-  useEffect(() => {
-    try {
-      const t = localStorage.getItem("roamie:trip");
-      if (t) setTrip(JSON.parse(t));
-    } catch {}
-    try {
-      const c = localStorage.getItem("roamie:currency");
-      if (c) setCurrency(JSON.parse(c));
-    } catch {}
-    try {
-      const e = localStorage.getItem("roamie:expenses");
-      if (e) setExpenses(JSON.parse(e));
-    } catch {}
-    try {
-      const it = localStorage.getItem("roamie:itinerary");
-      if (it) setItinerary(JSON.parse(it));
-    } catch {}
-    try {
-      const r = localStorage.getItem("roamie:recommendations");
-      if (r) {
-        const parsed = JSON.parse(r);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecommendations(parsed);
-        }
-      }
-    } catch {}
-  }, []);
+  // Sync trip data from localStorage (on mount + when page regains focus)
+  useSyncTripData({ setTrip, setCurrency, setExpenses, setItinerary, setRecommendations });
 
   // Auto-save back to database if loaded from saved trips
   useAutoSaveTrip([itinerary, recommendations, expenses]);

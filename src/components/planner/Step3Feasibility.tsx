@@ -69,15 +69,31 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
   }, []);
 
   const handleStartTracking = () => {
-    localStorage.setItem(
-      "roamie:trip",
-      JSON.stringify({
-        ...tripData,
-        allocations,
-        feasibility: result?.feasibility,
-        verdict: result?.verdict,
-      })
-    );
+    const newTripData = {
+      ...tripData,
+      allocations,
+      feasibility: result?.feasibility,
+      verdict: result?.verdict,
+    };
+
+    // Check if destination or dates changed — if so, clear stale explore data
+    try {
+      const oldTrip = JSON.parse(localStorage.getItem("roamie:trip") || "null");
+      if (
+        !oldTrip ||
+        oldTrip.destination !== tripData.destination ||
+        oldTrip.checkIn !== tripData.checkIn ||
+        oldTrip.checkOut !== tripData.checkOut ||
+        oldTrip.nights !== tripData.nights
+      ) {
+        // Trip fundamentals changed — clear old recommendations, itinerary, expenses
+        localStorage.removeItem("roamie:recommendations");
+        localStorage.removeItem("roamie:itinerary");
+        localStorage.removeItem("roamie:expenses");
+      }
+    } catch {}
+
+    localStorage.setItem("roamie:trip", JSON.stringify(newTripData));
     localStorage.setItem("roamie:currency", JSON.stringify(selectedCurrency));
     navigate("/dashboard");
   };
