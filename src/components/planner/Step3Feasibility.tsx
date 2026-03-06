@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import type { TripData } from "./Step1TripDetails";
 import type { Allocations } from "./Step2BudgetSplit";
 import { useNavigate } from "react-router-dom";
+import { exportTripPdf } from "@/lib/exportPdf";
 
 interface Step3Props {
   tripData: TripData;
@@ -210,23 +211,15 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
         </Button>
         <Button
           variant="outline"
-          onClick={() => {
-            const exportData = {
+          onClick={() =>
+            exportTripPdf({
               trip: { ...tripData, allocations, feasibility: result?.feasibility, verdict: result?.verdict },
               currency: selectedCurrency,
-              exportedAt: new Date().toISOString(),
-            };
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `roamie-trip-${tripData.destination.replace(/\s+/g, "-").toLowerCase()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
+            })
+          }
           className="w-full rounded-full"
         >
-          📥 Export Trip Plan
+          📥 Export Trip Plan (PDF)
         </Button>
         <Button
           variant="ghost"

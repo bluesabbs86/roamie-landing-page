@@ -52,6 +52,8 @@ const Step1TripDetails = ({ onNext }: Step1Props) => {
     if (!departure.trim()) e.departure = "Oops! Tell us where you're flying from 🛫";
     if (!destination.trim()) e.destination = "Oops! Tell us where you're headed 🗺️";
     if (!checkIn || !checkOut) e.dates = "Both dates are required 📅";
+    else if (new Date(checkIn) < new Date(new Date().toISOString().split("T")[0]))
+      e.dates = "Departure date can't be in the past 📅";
     else if (new Date(checkOut) <= new Date(checkIn))
       e.dates = "Return date must be after departure 📅";
     if (!budget || parseFloat(budget) <= 0)
@@ -171,6 +173,7 @@ const Step1TripDetails = ({ onNext }: Step1Props) => {
                 <Input
                   type="date"
                   className="rounded-xl"
+                  min={new Date().toISOString().split("T")[0]}
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
                 />
@@ -182,6 +185,7 @@ const Step1TripDetails = ({ onNext }: Step1Props) => {
                 <Input
                   type="date"
                   className="rounded-xl"
+                  min={checkIn || new Date().toISOString().split("T")[0]}
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
                 />
