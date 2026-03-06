@@ -41,6 +41,7 @@ const Hero = () => {
         </div>
         <Button
           variant="outline"
+          onClick={() => navigate("/auth")}
           className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 rounded-full px-6"
         >
           Sign Up

@@ -2,3 +2,6 @@ project_id = "mpleigjbaouoykvoekyu"
 
 [functions.trip-feasibility]
 verify_jwt = false
+
+[functions.trip-checklist]
+verify_jwt = false

@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          nationality: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          nationality?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          nationality?: string
+        }
+        Relationships: []
+      }
+      saved_itineraries: {
+        Row: {
+          allocations: Json | null
+          checklist: Json | null
+          created_at: string
+          expenses: Json | null
+          id: string
+          itinerary: Json | null
+          name: string
+          pdf_data: Json | null
+          recommendations: Json | null
+          trip_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allocations?: Json | null
+          checklist?: Json | null
+          created_at?: string
+          expenses?: Json | null
+          id?: string
+          itinerary?: Json | null
+          name?: string
+          pdf_data?: Json | null
+          recommendations?: Json | null
+          trip_data: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allocations?: Json | null
+          checklist?: Json | null
+          created_at?: string
+          expenses?: Json | null
+          id?: string
+          itinerary?: Json | null
+          name?: string
+          pdf_data?: Json | null
+          recommendations?: Json | null
+          trip_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
