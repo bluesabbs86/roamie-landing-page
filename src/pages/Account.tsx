@@ -115,19 +115,42 @@ const Account = () => {
       const recommendations = JSON.parse(localStorage.getItem("roamie:recommendations") || "[]");
       const expenses = JSON.parse(localStorage.getItem("roamie:expenses") || "[]");
 
-      const { error } = await supabase.from("saved_itineraries").insert({
-        user_id: user.id,
-        name: `${tripData.destination} Trip`,
-        trip_data: { ...tripData, currency },
-        allocations: tripData.allocations,
-        itinerary,
-        recommendations,
-        expenses,
-        checklist: [],
-      });
+      // Check for existing trip with same destination to upsert
+      const tripName = `${tripData.destination} Trip`;
+      const existing = itineraries.find((i) => i.name === tripName);
 
-      if (error) throw error;
-      toast({ title: "Trip saved to your account! 🎉" });
+      if (existing) {
+        const { error } = await supabase
+          .from("saved_itineraries")
+          .update({
+            trip_data: { ...tripData, currency },
+            allocations: tripData.allocations,
+            itinerary,
+            recommendations,
+            expenses,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id);
+        if (error) throw error;
+        toast({ title: "Trip updated! 🧡" });
+      } else {
+        if (itineraries.length >= 5) {
+          toast({ title: "Maximum 5 saved trips. Delete one to save a new one.", variant: "destructive" });
+          return;
+        }
+        const { error } = await supabase.from("saved_itineraries").insert({
+          user_id: user.id,
+          name: tripName,
+          trip_data: { ...tripData, currency },
+          allocations: tripData.allocations,
+          itinerary,
+          recommendations,
+          expenses,
+          checklist: [],
+        });
+        if (error) throw error;
+        toast({ title: "Trip saved to your account! 🎉" });
+      }
       loadData();
     } catch (e: any) {
       toast({ title: e.message || "Failed to save trip", variant: "destructive" });

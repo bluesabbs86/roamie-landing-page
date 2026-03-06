@@ -39,13 +39,22 @@ const Hero = () => {
           <a href="#how-it-works" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors font-medium text-sm">How It Works</a>
           <a href="#testimonials" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors font-medium text-sm">Testimonials</a>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => navigate("/auth")}
-          className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 rounded-full px-6"
-        >
-          Sign Up
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/auth?mode=login")}
+            className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full px-6"
+          >
+            Log In
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/auth?mode=signup")}
+            className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 rounded-full px-6"
+          >
+            Sign Up
+          </Button>
+        </div>
       </nav>
 
       {/* Hero content */}
