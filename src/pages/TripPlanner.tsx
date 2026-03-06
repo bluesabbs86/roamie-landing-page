@@ -5,6 +5,7 @@ import StepProgress from "@/components/planner/StepProgress";
 import Step1TripDetails, { TripData } from "@/components/planner/Step1TripDetails";
 import Step2BudgetSplit, { Allocations } from "@/components/planner/Step2BudgetSplit";
 import Step3Feasibility from "@/components/planner/Step3Feasibility";
+import BottomNav from "@/components/dashboard/BottomNav";
 
 const TripPlannerInner = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -12,7 +13,7 @@ const TripPlannerInner = () => {
   const [allocations, setAllocations] = useState<Allocations | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <PlannerNavbar />
       <StepProgress currentStep={currentStep} />
       <div className="px-4 pb-12">
@@ -48,6 +49,7 @@ const TripPlannerInner = () => {
           </div>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 };

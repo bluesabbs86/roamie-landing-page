@@ -78,8 +78,7 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
       })
     );
     localStorage.setItem("roamie:currency", JSON.stringify(selectedCurrency));
-    // Navigate to budget tracker (Feature 2 - future)
-    navigate("/");
+    navigate("/dashboard");
   };
 
   if (loading) {
