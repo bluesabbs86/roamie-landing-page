@@ -179,6 +179,31 @@ const BudgetDashboard = () => {
           allocations={trip.allocations}
         />
 
+        {/* Export Button */}
+        <div className="text-center">
+          <button
+            onClick={() => {
+              const exportData = {
+                trip,
+                currency,
+                expenses,
+                itinerary: JSON.parse(localStorage.getItem("roamie:itinerary") || "{}"),
+                exportedAt: new Date().toISOString(),
+              };
+              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `roamie-budget-${trip.destination.replace(/\s+/g, "-").toLowerCase()}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+          >
+            📥 Export All Data
+          </button>
+        </div>
+
         <p className="text-xs text-muted-foreground italic text-center pb-4">
           Estimates are approximate. Always verify before booking.
         </p>

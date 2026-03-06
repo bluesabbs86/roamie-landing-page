@@ -209,6 +209,26 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
           Start tracking my budget →
         </Button>
         <Button
+          variant="outline"
+          onClick={() => {
+            const exportData = {
+              trip: { ...tripData, allocations, feasibility: result?.feasibility, verdict: result?.verdict },
+              currency: selectedCurrency,
+              exportedAt: new Date().toISOString(),
+            };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `roamie-trip-${tripData.destination.replace(/\s+/g, "-").toLowerCase()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="w-full rounded-full"
+        >
+          📥 Export Trip Plan
+        </Button>
+        <Button
           variant="ghost"
           onClick={onBack}
           className="w-full rounded-full text-muted-foreground"

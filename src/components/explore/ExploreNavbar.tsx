@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Currency } from "@/contexts/CurrencyContext";
+import { toast } from "@/hooks/use-toast";
 
 interface ExploreNavbarProps {
   destination: string;
@@ -39,6 +40,22 @@ const ExploreNavbar = ({ destination, activitiesRemaining, totalRemaining, total
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
             ← Dashboard
+          </button>
+          <button
+            onClick={() => {
+              if (window.confirm("Clear all trip data and start over?")) {
+                localStorage.removeItem("roamie:trip");
+                localStorage.removeItem("roamie:currency");
+                localStorage.removeItem("roamie:expenses");
+                localStorage.removeItem("roamie:itinerary");
+                localStorage.removeItem("roamie:recommendations");
+                toast({ title: "All data cleared! Starting fresh 🧹" });
+                navigate("/plan");
+              }
+            }}
+            className="text-destructive hover:text-destructive/80 transition-colors text-xs"
+          >
+            🗑️
           </button>
         </div>
       </div>
