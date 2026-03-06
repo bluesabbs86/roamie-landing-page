@@ -20,7 +20,7 @@ const StepProgress = ({ currentStep }: StepProgressProps) => {
             <div
               className={cn(
                 "w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all",
-                currentStep > step.num
+              currentStep > step.num
                   ? "bg-green-500 text-white"
                   : currentStep === step.num
                   ? "bg-primary text-primary-foreground"
