@@ -93,6 +93,9 @@ const Explore = () => {
     } catch {}
   }, []);
 
+  // Auto-save back to database if loaded from saved trips
+  useAutoSaveTrip([itinerary, recommendations, expenses]);
+
   const { activitiesAllocated, activitiesSpent, activitiesRemaining, totalSpent, totalRemaining, budgetPerPerson } =
     useMemo(() => {
       if (!trip) return { activitiesAllocated: 0, activitiesSpent: 0, activitiesRemaining: 0, totalSpent: 0, totalRemaining: 0, budgetPerPerson: 0 };
