@@ -152,7 +152,7 @@ export function exportTripPdf({
   // Itinerary
   const itineraryDays = Object.entries(itinerary).filter(([, ids]) => ids.length > 0);
   if (itineraryDays.length > 0 && recommendations.length > 0) {
-    const totalPeople = (adults ?? trip.adults ?? 1) + (children ?? trip.children ?? 0);
+    const totalPeople = trip.adults + (trip.children || 0);
     checkPage(20);
     doc.setFontSize(14);
     doc.setTextColor(45, 45, 45);
