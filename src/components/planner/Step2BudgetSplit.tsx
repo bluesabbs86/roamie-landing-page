@@ -231,7 +231,7 @@ const Step2BudgetSplit = ({ tripData, onNext, onBack }: Step2Props) => {
       </div>
 
       <p className="text-xs text-muted-foreground italic text-center mb-6">
-        These are Roamie's smart suggestions — drag to make them yours.
+        {estimating ? "Calculating smart defaults…" : "These are Roamie's AI-powered suggestions — drag to make them yours."}
       </p>
 
       <Button
