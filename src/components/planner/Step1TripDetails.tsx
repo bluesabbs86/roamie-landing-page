@@ -171,6 +171,7 @@ const Step1TripDetails = ({ onNext }: Step1Props) => {
                 <Input
                   type="date"
                   className="rounded-xl"
+                  min={new Date().toISOString().split("T")[0]}
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
                 />
@@ -182,6 +183,7 @@ const Step1TripDetails = ({ onNext }: Step1Props) => {
                 <Input
                   type="date"
                   className="rounded-xl"
+                  min={checkIn || new Date().toISOString().split("T")[0]}
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
                 />

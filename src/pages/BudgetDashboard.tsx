@@ -11,6 +11,7 @@ import MoneyTipCard from "@/components/dashboard/MoneyTipCard";
 import CurrencySwitcherModal from "@/components/dashboard/CurrencySwitcherModal";
 import BottomNav from "@/components/dashboard/BottomNav";
 import { Button } from "@/components/ui/button";
+import { exportTripPdf } from "@/lib/exportPdf";
 
 interface Expense {
   id: string;
@@ -183,24 +184,19 @@ const BudgetDashboard = () => {
         <div className="text-center">
           <button
             onClick={() => {
-              const exportData = {
+              let recs: any[] = [];
+              try { recs = JSON.parse(localStorage.getItem("roamie:recommendations") || "[]"); } catch {}
+              exportTripPdf({
                 trip,
                 currency,
                 expenses,
                 itinerary: JSON.parse(localStorage.getItem("roamie:itinerary") || "{}"),
-                exportedAt: new Date().toISOString(),
-              };
-              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `roamie-budget-${trip.destination.replace(/\s+/g, "-").toLowerCase()}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
+                recommendations: recs,
+              });
             }}
             className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
           >
-            📥 Export All Data
+            📥 Export All Data (PDF)
           </button>
         </div>
 
