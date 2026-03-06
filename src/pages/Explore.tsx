@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useAutoSaveTrip } from "@/hooks/useAutoSaveTrip";
 import { useNavigate } from "react-router-dom";
 import { Currency, currencies } from "@/contexts/CurrencyContext";
 import { supabase } from "@/integrations/supabase/client";
