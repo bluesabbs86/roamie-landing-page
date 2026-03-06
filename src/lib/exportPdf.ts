@@ -43,7 +43,9 @@ export function exportTripPdf({
   currency: CurrencyExport;
   expenses?: ExpenseExport[];
   itinerary?: Record<string, string[]>;
-  recommendations?: { id: string; name: string; estimatedCostPerPerson: number; duration: string }[];
+  recommendations?: { id: string; name: string; estimatedCostPerPerson: number; duration: string; mapsQuery?: string; category?: string }[];
+  adults?: number;
+  children?: number;
 }) {
   const doc = new jsPDF();
   const s = currency.symbol;
