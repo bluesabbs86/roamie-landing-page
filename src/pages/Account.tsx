@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAutoLogoff, markSessionSaved } from "@/hooks/useAutoLogoff";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
@@ -32,6 +33,7 @@ interface Profile {
 const Account = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
+  useAutoLogoff();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [itineraries, setItineraries] = useState<SavedItinerary[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -98,11 +100,6 @@ const Account = () => {
 
   const saveCurrentTrip = async () => {
     if (!user) return;
-    if (itineraries.length >= 5) {
-      toast({ title: "Maximum 5 saved trips. Delete one to save a new one.", variant: "destructive" });
-      return;
-    }
-
     try {
       const tripData = JSON.parse(localStorage.getItem("roamie:trip") || "null");
       if (!tripData) {
@@ -115,19 +112,44 @@ const Account = () => {
       const recommendations = JSON.parse(localStorage.getItem("roamie:recommendations") || "[]");
       const expenses = JSON.parse(localStorage.getItem("roamie:expenses") || "[]");
 
-      const { error } = await supabase.from("saved_itineraries").insert({
-        user_id: user.id,
-        name: `${tripData.destination} Trip`,
-        trip_data: { ...tripData, currency },
-        allocations: tripData.allocations,
-        itinerary,
-        recommendations,
-        expenses,
-        checklist: [],
-      });
+      // Check for existing trip with same destination to upsert
+      const tripName = `${tripData.destination} Trip`;
+      const existing = itineraries.find((i) => i.name === tripName);
 
-      if (error) throw error;
-      toast({ title: "Trip saved to your account! 🎉" });
+      if (existing) {
+        const { error } = await supabase
+          .from("saved_itineraries")
+          .update({
+            trip_data: { ...tripData, currency },
+            allocations: tripData.allocations,
+            itinerary,
+            recommendations,
+            expenses,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id);
+        if (error) throw error;
+        toast({ title: "Trip updated! 🧡" });
+        markSessionSaved();
+      } else {
+        if (itineraries.length >= 5) {
+          toast({ title: "Maximum 5 saved trips. Delete one to save a new one.", variant: "destructive" });
+          return;
+        }
+        const { error } = await supabase.from("saved_itineraries").insert({
+          user_id: user.id,
+          name: tripName,
+          trip_data: { ...tripData, currency },
+          allocations: tripData.allocations,
+          itinerary,
+          recommendations,
+          expenses,
+          checklist: [],
+        });
+        if (error) throw error;
+        toast({ title: "Trip saved to your account! 🎉" });
+        markSessionSaved();
+      }
       loadData();
     } catch (e: any) {
       toast({ title: e.message || "Failed to save trip", variant: "destructive" });
