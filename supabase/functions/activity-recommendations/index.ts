@@ -24,7 +24,7 @@ Activities budget remaining: ${currencySymbol}${activitiesRemaining} (${currency
 Total budget remaining: ${currencySymbol}${totalRemaining} (${currencyCode})
 Budget per person: ${currencySymbol}${budgetPerPerson}
 
-Generate exactly 12 activity recommendations. Return ONLY this JSON array:
+Generate exactly 18 activity recommendations featuring well-known landmarks, popular attractions, and hidden gems. Return ONLY this JSON array:
 [
   {
     "id": "act_001",
@@ -41,7 +41,7 @@ Generate exactly 12 activity recommendations. Return ONLY this JSON array:
     "mapsQuery": "activity name destination city"
   }
 ]
-Generate exactly: 4 free (tier: free), 5 budget (tier: budget), 3 splurge (tier: splurge).
+Generate exactly: 8 free (tier: free), 6 budget (tier: budget), 4 splurge (tier: splurge). Prioritise free options including famous landmarks, parks, beaches, walking tours, viewpoints, and cultural sites that are free to visit.
 Ensure all costs are realistic for the destination and currency.
 Use these categories only: Culture & History 🏛️, Nature & Outdoors 🌿, Food & Dining 🍜, Shopping 🛍️, Entertainment 🎭, Wellness & Relaxation 🧘, Beach & Water 🏖️, Nightlife 🌃
 Return nothing else. No markdown. No explanation.`;
