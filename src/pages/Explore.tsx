@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { exportTripPdf } from "@/lib/exportPdf";
 import ExploreNavbar from "@/components/explore/ExploreNavbar";
 import ExploreHeader from "@/components/explore/ExploreHeader";
 import TierSelector from "@/components/explore/TierSelector";
