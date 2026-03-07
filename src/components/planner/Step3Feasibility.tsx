@@ -7,7 +7,7 @@ import type { TripData } from "./Step1TripDetails";
 import type { Allocations } from "./Step2BudgetSplit";
 import { useNavigate } from "react-router-dom";
 import { exportTripPdf } from "@/lib/exportPdf";
-import { LogIn } from "lucide-react";
+
 
 interface Step3Props {
   tripData: TripData;
