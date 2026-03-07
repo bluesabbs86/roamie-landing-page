@@ -7,6 +7,7 @@ import type { TripData } from "./Step1TripDetails";
 import type { Allocations } from "./Step2BudgetSplit";
 import { useNavigate } from "react-router-dom";
 import { exportTripPdf } from "@/lib/exportPdf";
+import { LogIn } from "lucide-react";
 
 interface Step3Props {
   tripData: TripData;
@@ -29,6 +30,7 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<FeasibilityResult | null>(null);
   const [error, setError] = useState(false);
+  const [needsAuth, setNeedsAuth] = useState(false);
 
   const fetchFeasibility = async () => {
     setLoading(true);
@@ -56,9 +58,13 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
       if (fnError) throw fnError;
       console.log("Feasibility result:", data);
       setResult(data as FeasibilityResult);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Feasibility error:", e);
-      setError(true);
+      if (e?.message?.includes("Unauthorized") || e?.context?.status === 401) {
+        setNeedsAuth(true);
+      } else {
+        setError(true);
+      }
     } finally {
       setLoading(false);
     }
