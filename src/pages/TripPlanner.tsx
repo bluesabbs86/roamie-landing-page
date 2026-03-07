@@ -77,6 +77,34 @@ const TripPlannerInner = () => {
                 message="Your plan is set! Next, track your spending"
                 ctaLabel="Open Dashboard"
                 href="/dashboard"
+                onBeforeNavigate={() => {
+                  if (tripData && allocations) {
+                    const newTripData = {
+                      ...tripData,
+                      allocations,
+                    };
+                    // Clear stale data if trip changed
+                    try {
+                      const oldTrip = JSON.parse(localStorage.getItem("roamie:trip") || "null");
+                      if (
+                        !oldTrip ||
+                        oldTrip.destination !== tripData.destination ||
+                        oldTrip.checkIn !== tripData.checkIn ||
+                        oldTrip.checkOut !== tripData.checkOut ||
+                        oldTrip.nights !== tripData.nights
+                      ) {
+                        localStorage.removeItem("roamie:recommendations");
+                        localStorage.removeItem("roamie:itinerary");
+                        localStorage.removeItem("roamie:expenses");
+                      }
+                    } catch {}
+                    localStorage.setItem("roamie:trip", JSON.stringify(newTripData));
+                    const currency = localStorage.getItem("roamie:currency");
+                    if (!currency) {
+                      localStorage.setItem("roamie:currency", JSON.stringify({ code: "GBP", symbol: "£", name: "British Pound" }));
+                    }
+                  }
+                }}
               />
             </div>
           </div>

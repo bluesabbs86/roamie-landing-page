@@ -8,10 +8,16 @@ interface NextStepGuideProps {
   ctaLabel: string;
   href: string;
   variant?: "default" | "subtle";
+  onBeforeNavigate?: () => void;
 }
 
-const NextStepGuide = ({ emoji, message, ctaLabel, href, variant = "default" }: NextStepGuideProps) => {
+const NextStepGuide = ({ emoji, message, ctaLabel, href, variant = "default", onBeforeNavigate }: NextStepGuideProps) => {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    onBeforeNavigate?.();
+    navigate(href);
+  };
 
   return (
     <motion.div
@@ -23,7 +29,7 @@ const NextStepGuide = ({ emoji, message, ctaLabel, href, variant = "default" }: 
           ? "bg-accent/50 border border-border hover:bg-accent"
           : "bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 hover:border-primary/40"
       } transition-all`}
-      onClick={() => navigate(href)}
+      onClick={handleClick}
     >
       <span className="text-2xl shrink-0">{emoji}</span>
       <div className="flex-1 min-w-0">
