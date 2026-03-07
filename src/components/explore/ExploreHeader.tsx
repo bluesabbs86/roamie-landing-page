@@ -4,6 +4,7 @@ interface ExploreHeaderProps {
   destination: string;
   activitiesRemaining: number;
   totalRemaining: number;
+  totalPlannedCost: number;
   currency: Currency;
 }
 
