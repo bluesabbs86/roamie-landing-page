@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,9 @@ import RoamieLogo from "@/components/RoamieLogo";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") !== "login");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [nationality, setNationality] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -53,32 +49,12 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        if (!fullName.trim()) {
-          toast({ title: "Please enter your name", variant: "destructive" });
-          setLoading(false);
-          return;
-        }
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName, nationality },
-          },
-        });
-        if (error) throw error;
-        toast({ title: "Welcome to Roamie! 🧡" });
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast({ title: "Welcome back! 🧡" });
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast({ title: "Welcome back! 🧡" });
     } catch (error: any) {
       console.error("Auth error:", error);
-      const msg = isSignUp
-        ? "If this email isn't already registered, your account has been created. Please check your email."
-        : "Invalid email or password.";
-      toast({ title: msg, variant: "destructive" });
+      toast({ title: "Invalid email or password.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -92,8 +68,6 @@ const Auth = () => {
           <p className="text-primary-foreground/80 mt-2">
             {isForgotPassword
               ? "Reset your password"
-              : isSignUp
-              ? "Create your account to save trips"
               : "Sign in to your account"}
           </p>
         </div>
@@ -135,29 +109,6 @@ const Auth = () => {
           </form>
         ) : (
           <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-xl p-6 space-y-4">
-            {isSignUp && (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Full Name</label>
-                  <Input
-                    className="rounded-xl"
-                    placeholder="Your name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1.5">Nationality</label>
-                  <Input
-                    className="rounded-xl"
-                    placeholder="e.g. American, British, Indian"
-                    value={nationality}
-                    onChange={(e) => setNationality(e.target.value)}
-                  />
-                </div>
-              </>
-            )}
             <div>
               <label className="block text-sm font-semibold text-foreground mb-1.5">Email</label>
               <Input
@@ -182,36 +133,24 @@ const Auth = () => {
               />
             </div>
 
-            {!isSignUp && (
-              <div className="text-right">
-                <button
+            <div className="text-right">
+              <button
                   type="button"
                   onClick={() => setIsForgotPassword(true)}
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot password?
-                </button>
-              </div>
-            )}
+              </button>
+            </div>
 
             <Button
               type="submit"
               disabled={loading}
               className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full py-6 text-base font-bold"
             >
-              {loading ? "Please wait..." : isSignUp ? "Create Account 🧡" : "Sign In →"}
+              {loading ? "Please wait..." : "Sign In →"}
             </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
-              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary font-semibold hover:underline"
-              >
-                {isSignUp ? "Sign In" : "Sign Up"}
-              </button>
-            </p>
           </form>
         )}
 
