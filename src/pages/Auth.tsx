@@ -51,7 +51,11 @@ const Auth = () => {
         toast({ title: "Welcome back! 🧡" });
       }
     } catch (error: any) {
-      toast({ title: error.message || "Something went wrong", variant: "destructive" });
+      console.error("Auth error:", error);
+      const msg = isSignUp
+        ? "If this email isn't already registered, your account has been created. Please check your email."
+        : "Invalid email or password.";
+      toast({ title: msg, variant: "destructive" });
     } finally {
       setLoading(false);
     }
