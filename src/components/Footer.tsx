@@ -2,8 +2,8 @@ import RoamieLogo from "@/components/RoamieLogo";
 import { MapPin } from "lucide-react";
 
 const footerLinks = {
-  Product: ["Features", "Pricing", "How It Works", "FAQ"],
-  Company: ["About", "Blog", "Careers", "Press"],
+  Product: ["Features", "How It Works", "FAQ"],
+  Company: ["About", "Blog"],
   Support: ["Help Center", "Contact", "Privacy", "Terms"],
 };
 
@@ -40,13 +40,7 @@ const Footer = () => {
         </div>
         <div className="border-t border-primary-foreground/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-primary-foreground/40 text-sm">© 2026 Roamie. All rights reserved.</p>
-          <div className="flex gap-6">
-            {["Twitter", "Instagram", "TikTok"].map((social) => (
-              <a key={social} href="#" className="text-primary-foreground/40 hover:text-primary transition-colors text-sm">
-                {social}
-              </a>
-            ))}
-          </div>
+          <p className="text-primary-foreground/40 text-sm">100% Free · No hidden fees</p>
         </div>
       </div>
     </footer>
