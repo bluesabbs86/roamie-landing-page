@@ -43,17 +43,10 @@ const Hero = () => {
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
-            onClick={() => navigate("/auth?mode=login")}
+            onClick={() => navigate("/auth")}
             className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full px-6"
           >
             Log In
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/auth?mode=signup")}
-            className="border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 rounded-full px-6"
-          >
-            Sign Up
           </Button>
         </div>
       </nav>
