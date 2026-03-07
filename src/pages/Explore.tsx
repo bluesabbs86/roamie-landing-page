@@ -236,6 +236,7 @@ const Explore = () => {
         destination={trip.destination}
         activitiesRemaining={activitiesRemaining}
         totalRemaining={totalRemaining}
+        totalPlannedCost={totalPlannedCost}
         currency={currency}
       />
 

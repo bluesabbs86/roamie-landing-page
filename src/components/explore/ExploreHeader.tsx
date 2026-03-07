@@ -8,7 +8,7 @@ interface ExploreHeaderProps {
   currency: Currency;
 }
 
-const ExploreHeader = ({ destination, activitiesRemaining, totalRemaining, currency }: ExploreHeaderProps) => {
+const ExploreHeader = ({ destination, activitiesRemaining, totalRemaining, totalPlannedCost, currency }: ExploreHeaderProps) => {
   return (
     <div className="bg-gradient-to-r from-primary to-secondary px-4 py-6">
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -20,14 +20,19 @@ const ExploreHeader = ({ destination, activitiesRemaining, totalRemaining, curre
             Personalised for your remaining budget
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {activitiesRemaining > 0 ? (
             <span className="px-3 py-1.5 rounded-full bg-white/20 text-primary-foreground text-sm font-semibold">
               🎯 Activities: {currency.symbol}{activitiesRemaining.toFixed(0)}
             </span>
           ) : (
-            <span className="px-3 py-1.5 rounded-full bg-red-500 text-white text-sm font-semibold">
+            <span className="px-3 py-1.5 rounded-full bg-destructive text-destructive-foreground text-sm font-semibold">
               🎯 Activities budget used up
+            </span>
+          )}
+          {totalPlannedCost > 0 && (
+            <span className="px-3 py-1.5 rounded-full bg-white/20 text-primary-foreground text-sm font-semibold">
+              📋 Planned: {currency.symbol}{totalPlannedCost.toFixed(0)}
             </span>
           )}
           <span className="px-3 py-1.5 rounded-full bg-white/20 text-primary-foreground text-sm font-semibold">
@@ -37,7 +42,7 @@ const ExploreHeader = ({ destination, activitiesRemaining, totalRemaining, curre
       </div>
       {activitiesRemaining <= 0 && (
         <div className="max-w-5xl mx-auto mt-3">
-          <div className="bg-amber-100 text-amber-800 px-4 py-2 rounded-xl text-sm">
+          <div className="bg-accent text-accent-foreground px-4 py-2 rounded-xl text-sm">
             Your activities budget is spent — but great free options still await! 🆓
           </div>
         </div>
