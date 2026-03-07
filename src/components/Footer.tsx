@@ -29,7 +29,10 @@ const Footer = () => {
               <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link}>
-                    <a href="#" className="text-primary-foreground/50 hover:text-primary transition-colors text-sm">
+                    <a
+                      href={link === "Privacy" ? "/privacy" : "#"}
+                      className="text-primary-foreground/50 hover:text-primary transition-colors text-sm"
+                    >
                       {link}
                     </a>
                   </li>
