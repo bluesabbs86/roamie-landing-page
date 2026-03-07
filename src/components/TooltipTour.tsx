@@ -43,48 +43,53 @@ const TooltipTour = ({ steps, tourKey }: TooltipTourProps) => {
     const el = document.querySelector(step.target);
     if (!el) return;
 
-    const rect = el.getBoundingClientRect();
-    const tooltipWidth = 300;
-    const tooltipHeight = 160;
-    const padding = 12;
-
-    // Highlight the target element
+    // Scroll into view first, then position after scroll settles
     el.scrollIntoView({ behavior: "smooth", block: "center" });
 
-    let top = 0;
-    let left = rect.left + rect.width / 2 - tooltipWidth / 2;
-    let position: "top" | "bottom" = "bottom";
+    // Delay position calculation to allow scroll to complete
+    setTimeout(() => {
+      const rect = el.getBoundingClientRect();
+      const tooltipWidth = 300;
+      const tooltipHeight = 160;
+      const padding = 12;
 
-    // Prefer below, fall back to above
-    if (rect.bottom + tooltipHeight + padding < window.innerHeight) {
-      top = rect.bottom + padding;
-      position = "bottom";
-    } else {
-      top = rect.top - tooltipHeight - padding;
-      position = "top";
-    }
+      let top = 0;
+      let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+      let position: "top" | "bottom" = "bottom";
 
-    // Clamp horizontally
-    left = Math.max(12, Math.min(left, window.innerWidth - tooltipWidth - 12));
+      // Prefer below, fall back to above
+      if (rect.bottom + tooltipHeight + padding < window.innerHeight) {
+        top = rect.bottom + padding;
+        position = "bottom";
+      } else {
+        top = rect.top - tooltipHeight - padding;
+        position = "top";
+      }
 
-    setActualPosition(position);
-    setTooltipStyle({
-      position: "fixed",
-      top: `${top}px`,
-      left: `${left}px`,
-      width: `${tooltipWidth}px`,
-      zIndex: 10001,
-    });
+      // Clamp horizontally
+      left = Math.max(12, Math.min(left, window.innerWidth - tooltipWidth - 12));
+      // Clamp vertically
+      top = Math.max(12, Math.min(top, window.innerHeight - tooltipHeight - 12));
 
-    // Arrow pointing at target
-    const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - left, tooltipWidth - 20));
-    setArrowStyle({
-      position: "absolute",
-      left: `${arrowLeft}px`,
-      ...(position === "bottom"
-        ? { top: "-6px" }
-        : { bottom: "-6px" }),
-    });
+      setActualPosition(position);
+      setTooltipStyle({
+        position: "fixed",
+        top: `${top}px`,
+        left: `${left}px`,
+        width: `${tooltipWidth}px`,
+        zIndex: 10001,
+      });
+
+      // Arrow pointing at target
+      const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - left, tooltipWidth - 20));
+      setArrowStyle({
+        position: "absolute",
+        left: `${arrowLeft}px`,
+        ...(position === "bottom"
+          ? { top: "-6px" }
+          : { bottom: "-6px" }),
+      });
+    }, 500);
   }, [isVisible, currentStep, steps]);
 
   useEffect(() => {
