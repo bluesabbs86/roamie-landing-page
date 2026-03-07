@@ -310,8 +310,17 @@ const Explore = () => {
             onRemoveFromDay={handleRemoveFromDay}
             onReorder={handleReorder}
             onAddCustomActivity={(activity, day) => {
-              setRecommendations((prev) => [...prev, activity]);
-              handleAddToDay(activity.id, day);
+              const fullActivity: Activity = {
+                ...activity,
+                tier: activity.estimatedCostPerPerson === 0 ? "free" : "budget",
+                description: "Custom activity",
+                currency: currency.code,
+                bestTime: "Anytime",
+                localTip: "",
+                mapsQuery: `${activity.name} ${trip.destination}`,
+              };
+              setRecommendations((prev) => [...prev, fullActivity]);
+              handleAddToDay(fullActivity.id, day);
             }}
           />
         )}
