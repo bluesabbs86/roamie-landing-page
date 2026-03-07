@@ -306,8 +306,13 @@ const Explore = () => {
             recommendations={recommendations}
             adults={trip.adults}
             children={trip.children}
+            destination={trip.destination}
             onRemoveFromDay={handleRemoveFromDay}
             onReorder={handleReorder}
+            onAddCustomActivity={(activity, day) => {
+              setRecommendations((prev) => [...prev, activity]);
+              handleAddToDay(activity.id, day);
+            }}
           />
         )}
 
