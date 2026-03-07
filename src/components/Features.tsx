@@ -30,7 +30,7 @@ const fadeUp = {
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 md:py-32 bg-warm-white">
+    <section id="features" data-tour="features-section" className="py-24 md:py-32 bg-warm-white">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

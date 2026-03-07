@@ -23,7 +23,7 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-24 md:py-32 bg-accent/30">
+    <section id="how-it-works" data-tour="how-it-works" className="py-24 md:py-32 bg-accent/30">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

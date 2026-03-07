@@ -15,6 +15,25 @@ import BottomNav from "@/components/dashboard/BottomNav";
 import { Button } from "@/components/ui/button";
 import { exportTripPdf } from "@/lib/exportPdf";
 import NextStepGuide from "@/components/NextStepGuide";
+import TooltipTour from "@/components/TooltipTour";
+
+const dashboardTour = [
+  {
+    target: "[data-tour='budget-overview']",
+    title: "Your Budget at a Glance 💰",
+    description: "See how much you've spent vs. your total budget. The progress bar updates in real-time.",
+  },
+  {
+    target: "[data-tour='category-cards']",
+    title: "Track by Category 📊",
+    description: "Log expenses under Flights, Hotel, Activities, or Food. Tap the + button to add a spend.",
+  },
+  {
+    target: "[data-tour='next-step-explore']",
+    title: "Explore Activities Next 🎯",
+    description: "When you're ready, head to Explore to discover AI-recommended activities for your destination!",
+  },
+];
 
 interface Expense {
   id: string;
@@ -116,6 +135,7 @@ const BudgetDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <TooltipTour steps={dashboardTour} tourKey="dashboard" />
       <DashboardNavbar
         currency={currency}
         feasibility={trip.feasibility}
@@ -126,10 +146,12 @@ const BudgetDashboard = () => {
 
       <div className="max-w-5xl mx-auto px-4 space-y-6 mt-6">
         {/* Section 2 — Budget Overview */}
-        <BudgetOverviewCard totalBudget={trip.totalBudget} totalSpent={totalSpent} currency={currency} />
+        <div data-tour="budget-overview">
+          <BudgetOverviewCard totalBudget={trip.totalBudget} totalSpent={totalSpent} currency={currency} />
+        </div>
 
         {/* Section 3 — Category Cards */}
-        <div>
+        <div data-tour="category-cards">
           <h2 className="font-display text-lg font-bold text-foreground mb-1">
             Spending by Category
           </h2>
@@ -192,12 +214,14 @@ const BudgetDashboard = () => {
             📥 Export All Data (PDF)
           </button>
         </div>
-        <NextStepGuide
-          emoji="🎯"
-          message="Ready to discover activities? Explore what to do at your destination"
-          ctaLabel="Explore Activities"
-          href="/explore"
-        />
+        <div data-tour="next-step-explore">
+          <NextStepGuide
+            emoji="🎯"
+            message="Ready to discover activities? Explore what to do at your destination"
+            ctaLabel="Explore Activities"
+            href="/explore"
+          />
+        </div>
 
         <p className="text-xs text-muted-foreground italic text-center pb-4">
           Estimates are approximate. Always verify before booking.
