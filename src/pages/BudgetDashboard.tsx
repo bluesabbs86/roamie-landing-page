@@ -135,6 +135,7 @@ const BudgetDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <TooltipTour steps={dashboardTour} tourKey="dashboard" />
       <DashboardNavbar
         currency={currency}
         feasibility={trip.feasibility}
@@ -145,10 +146,12 @@ const BudgetDashboard = () => {
 
       <div className="max-w-5xl mx-auto px-4 space-y-6 mt-6">
         {/* Section 2 — Budget Overview */}
-        <BudgetOverviewCard totalBudget={trip.totalBudget} totalSpent={totalSpent} currency={currency} />
+        <div data-tour="budget-overview">
+          <BudgetOverviewCard totalBudget={trip.totalBudget} totalSpent={totalSpent} currency={currency} />
+        </div>
 
         {/* Section 3 — Category Cards */}
-        <div>
+        <div data-tour="category-cards">
           <h2 className="font-display text-lg font-bold text-foreground mb-1">
             Spending by Category
           </h2>
@@ -211,12 +214,14 @@ const BudgetDashboard = () => {
             📥 Export All Data (PDF)
           </button>
         </div>
-        <NextStepGuide
-          emoji="🎯"
-          message="Ready to discover activities? Explore what to do at your destination"
-          ctaLabel="Explore Activities"
-          href="/explore"
-        />
+        <div data-tour="next-step-explore">
+          <NextStepGuide
+            emoji="🎯"
+            message="Ready to discover activities? Explore what to do at your destination"
+            ctaLabel="Explore Activities"
+            href="/explore"
+          />
+        </div>
 
         <p className="text-xs text-muted-foreground italic text-center pb-4">
           Estimates are approximate. Always verify before booking.
