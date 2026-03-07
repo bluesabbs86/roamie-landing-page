@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { useAutoSaveTrip } from "@/hooks/useAutoSaveTrip";
 import { useSyncTripData } from "@/hooks/useSyncTripData";
 import { useNavigate } from "react-router-dom";
 import { Currency, currencies } from "@/contexts/CurrencyContext";
@@ -60,13 +59,10 @@ const BudgetDashboard = () => {
   // Sync trip data from localStorage (on mount + when page regains focus)
   useSyncTripData({ setTrip, setCurrency, setExpenses });
 
-  // Persist expenses
+  // Persist expenses to localStorage
   useEffect(() => {
     localStorage.setItem("roamie:expenses", JSON.stringify(expenses));
   }, [expenses]);
-
-  // Auto-save back to database if loaded from saved trips
-  useAutoSaveTrip([trip, expenses]);
 
   const { totalSpent, spentByCategory } = useMemo(() => {
     const totalSpent = expenses.reduce((s, e) => s + e.amount, 0);
