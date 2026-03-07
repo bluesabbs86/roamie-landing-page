@@ -83,13 +83,34 @@ Return nothing else. No markdown. No explanation.`;
     let parsed;
     try {
       parsed = JSON.parse(content);
-    } catch {
-      // Try to salvage truncated JSON by finding the last complete object
-      const lastComplete = content.lastIndexOf("}");
-      if (lastComplete > 0) {
-        const trimmed = content.substring(0, lastComplete + 1) + "]";
-        parsed = JSON.parse(trimmed);
-      } else {
+    } catch (parseErr) {
+      // Try progressively trimming from the last complete object boundary
+      let salvaged = false;
+      // Find all potential object-end positions and try from the last one backwards
+      const closingBraces: number[] = [];
+      let inString = false;
+      let escape = false;
+      for (let i = 0; i < content.length; i++) {
+        const ch = content[i];
+        if (escape) { escape = false; continue; }
+        if (ch === '\\') { escape = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (!inString && ch === '}') closingBraces.push(i);
+      }
+      // Try from last closing brace backwards until we get valid JSON
+      for (let j = closingBraces.length - 1; j >= 0; j--) {
+        try {
+          const candidate = content.substring(0, closingBraces[j] + 1) + "]";
+          const result = JSON.parse(candidate);
+          if (Array.isArray(result) && result.length > 0) {
+            parsed = result;
+            salvaged = true;
+            console.log(`Salvaged ${result.length} activities from truncated response`);
+            break;
+          }
+        } catch { /* try next */ }
+      }
+      if (!salvaged) {
         throw new Error("Could not parse AI response as JSON");
       }
     }
