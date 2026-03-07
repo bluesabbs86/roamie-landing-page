@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import PlannerNavbar from "@/components/planner/PlannerNavbar";
+import NextStepGuide from "@/components/NextStepGuide";
 import StepProgress from "@/components/planner/StepProgress";
 import Step1TripDetails, { TripData } from "@/components/planner/Step1TripDetails";
 import Step2BudgetSplit, { Allocations } from "@/components/planner/Step2BudgetSplit";
@@ -46,6 +47,14 @@ const TripPlannerInner = () => {
               allocations={allocations}
               onBack={() => setCurrentStep(2)}
             />
+            <div className="max-w-xl mx-auto mt-6">
+              <NextStepGuide
+                emoji="📊"
+                message="Your plan is set! Next, track your spending"
+                ctaLabel="Open Dashboard"
+                href="/dashboard"
+              />
+            </div>
           </div>
         )}
       </div>
