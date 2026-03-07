@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { Currency, currencies } from "@/contexts/CurrencyContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { exportTripPdf } from "@/lib/exportPdf";
+import ExploreLoadingAnimation from "@/components/explore/ExploreLoadingAnimation";
 import ExploreNavbar from "@/components/explore/ExploreNavbar";
 import ExploreHeader from "@/components/explore/ExploreHeader";
 import TierSelector from "@/components/explore/TierSelector";
@@ -250,19 +250,7 @@ const Explore = () => {
 
         {/* Recommendations Grid */}
         {loading ? (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-52 rounded-2xl" />
-              ))}
-            </div>
-            <div className="text-center mt-4">
-              <div className="inline-block w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Roamie is finding the best things to do in {trip.destination}... 🧡
-              </p>
-            </div>
-          </div>
+          <ExploreLoadingAnimation destination={trip.destination} />
         ) : error ? (
           <div className="text-center py-12">
             <span className="text-5xl">😅</span>

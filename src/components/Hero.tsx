@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import RoamieLogo from "@/components/RoamieLogo";
+import NextStepGuide from "@/components/NextStepGuide";
 import { MapPin, Plane, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -103,6 +104,14 @@ const Hero = () => {
               >
                 See How It Works
               </Button>
+            </div>
+            <div className="mt-8">
+              <NextStepGuide
+                emoji="🚀"
+                message="Start here — plan your first trip in 3 easy steps"
+                ctaLabel="Let's go"
+                href="/plan"
+              />
             </div>
           </motion.div>
 

@@ -14,6 +14,7 @@ import CurrencySwitcherModal from "@/components/dashboard/CurrencySwitcherModal"
 import BottomNav from "@/components/dashboard/BottomNav";
 import { Button } from "@/components/ui/button";
 import { exportTripPdf } from "@/lib/exportPdf";
+import NextStepGuide from "@/components/NextStepGuide";
 
 interface Expense {
   id: string;
@@ -191,6 +192,12 @@ const BudgetDashboard = () => {
             📥 Export All Data (PDF)
           </button>
         </div>
+        <NextStepGuide
+          emoji="🎯"
+          message="Ready to discover activities? Explore what to do at your destination"
+          ctaLabel="Explore Activities"
+          href="/explore"
+        />
 
         <p className="text-xs text-muted-foreground italic text-center pb-4">
           Estimates are approximate. Always verify before booking.
