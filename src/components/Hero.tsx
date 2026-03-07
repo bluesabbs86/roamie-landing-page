@@ -113,6 +113,7 @@ const Hero = () => {
                 href="/plan"
               />
             </div>
+          </motion.div>
 
           {/* App mockup placeholder */}
           <motion.div
