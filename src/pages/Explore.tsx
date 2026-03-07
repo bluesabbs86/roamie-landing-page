@@ -120,9 +120,13 @@ const Explore = () => {
       } else {
         throw new Error("Invalid response format");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Recommendations error:", e);
-      setError(true);
+      if (e?.message?.includes("Unauthorized") || e?.context?.status === 401) {
+        setNeedsAuth(true);
+      } else {
+        setError(true);
+      }
     } finally {
       setLoading(false);
     }
