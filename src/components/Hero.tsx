@@ -91,6 +91,7 @@ const Hero = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
+                data-tour="start-planning"
                 size="lg"
                 onClick={() => navigate("/plan")}
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 rounded-full px-8 py-6 text-base font-bold shadow-lg shadow-black/10"
