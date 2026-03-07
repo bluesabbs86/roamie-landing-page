@@ -64,6 +64,7 @@ const Explore = () => {
   const [itinerary, setItinerary] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [needsAuth, setNeedsAuth] = useState(false);
   const [activeTier, setActiveTier] = useState("budget");
 
   // Sync trip data from localStorage (on mount + when page regains focus)
