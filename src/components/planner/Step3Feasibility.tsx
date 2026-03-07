@@ -120,6 +120,33 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
     );
   }
 
+  if (needsAuth) {
+    return (
+      <div className="max-w-[500px] mx-auto text-center py-16">
+        <div className="bg-card rounded-2xl shadow-md p-8">
+          <LogIn className="w-10 h-10 text-primary mx-auto mb-4" />
+          <p className="text-lg font-display font-bold text-foreground mb-2">
+            Sign in to unlock your feasibility check 🔒
+          </p>
+          <p className="text-muted-foreground text-sm mb-6">
+            Create a free account to get AI-powered budget analysis for your trip.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" onClick={onBack} className="rounded-full px-6">
+              ← Back
+            </Button>
+            <Button
+              onClick={() => navigate("/auth")}
+              className="bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full px-8"
+            >
+              Sign in / Sign up
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (error || !result) {
     return (
       <div className="max-w-[500px] mx-auto text-center py-16">
