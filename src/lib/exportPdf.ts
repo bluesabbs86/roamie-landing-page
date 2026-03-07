@@ -1,5 +1,3 @@
-import jsPDF from "jspdf";
-
 interface TripExport {
   destination: string;
   departure: string;
@@ -45,211 +43,303 @@ export function exportTripPdf({
   itinerary?: Record<string, string[]>;
   recommendations?: { id: string; name: string; estimatedCostPerPerson: number; duration: string; mapsQuery?: string; category?: string }[];
 }) {
-  const doc = new jsPDF();
   const s = currency.symbol;
-  let y = 20;
-  const pageW = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  const contentW = pageW - margin * 2;
+  const totalPeople = trip.adults + (trip.children || 0);
 
-  const addPage = () => { doc.addPage(); y = 20; };
-  const checkPage = (needed: number) => { if (y + needed > 275) addPage(); };
+  // Budget allocation rows
+  const allocationRows = trip.allocations
+    ? [
+        { name: "✈️ Flights", ...trip.allocations.flights },
+        { name: "🏨 Hotel", ...trip.allocations.hotel },
+        { name: "🎯 Activities", ...trip.allocations.activities },
+        { name: "🍽️ Food & Misc", ...trip.allocations.food },
+      ]
+    : [];
 
-  // Title
-  doc.setFontSize(22);
-  doc.setTextColor(255, 107, 107);
-  doc.text("Roamie Trip Plan", margin, y);
-  y += 10;
-  doc.setFontSize(10);
-  doc.setTextColor(150, 150, 150);
-  doc.text(`Exported ${new Date().toLocaleDateString()}`, margin, y);
-  y += 12;
+  // Expense totals
+  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
 
-  // Trip Details
-  doc.setFontSize(14);
-  doc.setTextColor(45, 45, 45);
-  doc.text("Trip Details", margin, y);
-  y += 8;
-  doc.setFontSize(10);
-  const details = [
-    `Destination: ${trip.destination}`,
-    `From: ${trip.departure}`,
-    `Dates: ${trip.checkIn} to ${trip.checkOut} (${trip.nights} nights)`,
-    `Travellers: ${trip.adults} adult(s), ${trip.children} child(ren)`,
-    `Total Budget: ${s}${trip.totalBudget.toFixed(2)} ${currency.code}`,
-  ];
-  if (trip.feasibility) details.push(`Feasibility: ${trip.feasibility}`);
-  details.forEach((line) => {
-    doc.text(line, margin, y);
-    y += 6;
-  });
-  y += 6;
+  // Itinerary days
+  const itineraryDays = Object.entries(itinerary)
+    .filter(([, ids]) => ids.length > 0)
+    .sort(([a], [b]) => a.localeCompare(b));
 
-  // Budget Allocation
-  if (trip.allocations) {
-    checkPage(40);
-    doc.setFontSize(14);
-    doc.setTextColor(45, 45, 45);
-    doc.text("Budget Allocation", margin, y);
-    y += 8;
-    doc.setFontSize(10);
-    const cats = [
-      { name: "Flights", data: trip.allocations.flights },
-      { name: "Hotel", data: trip.allocations.hotel },
-      { name: "Activities", data: trip.allocations.activities },
-      { name: "Food & Misc", data: trip.allocations.food },
-    ];
-    cats.forEach((c) => {
-      doc.text(`${c.name}: ${s}${c.data.amount.toFixed(2)} (${c.data.percent}%)`, margin, y);
-      y += 6;
-    });
-    y += 6;
-  }
-
-  // Expenses
-  if (expenses.length > 0) {
-    checkPage(20);
-    doc.setFontSize(14);
-    doc.setTextColor(45, 45, 45);
-    doc.text("Expense Log", margin, y);
-    y += 8;
-    doc.setFontSize(9);
-
-    const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
-
-    // Table header
-    doc.setTextColor(150, 150, 150);
-    doc.text("Date", margin, y);
-    doc.text("Category", margin + 30, y);
-    doc.text("Description", margin + 60, y);
-    doc.text("Amount", margin + 130, y);
-    y += 5;
-    doc.setDrawColor(230, 230, 230);
-    doc.line(margin, y, margin + contentW, y);
-    y += 4;
-
-    doc.setTextColor(45, 45, 45);
-    expenses.forEach((exp) => {
-      checkPage(8);
-      doc.text(exp.dateAdded || "-", margin, y);
-      doc.text(exp.category, margin + 30, y);
-      const desc = exp.description.length > 30 ? exp.description.substring(0, 30) + "..." : exp.description;
-      doc.text(desc, margin + 60, y);
-      doc.text(`${s}${exp.amount.toFixed(2)}`, margin + 130, y);
-      y += 6;
-    });
-    y += 4;
-    doc.setFontSize(10);
-    doc.setTextColor(255, 107, 107);
-    doc.text(`Total Spent: ${s}${totalSpent.toFixed(2)}`, margin, y);
-    y += 4;
-    doc.text(`Remaining: ${s}${(trip.totalBudget - totalSpent).toFixed(2)}`, margin, y);
-    y += 10;
-  }
-
-  // Itinerary
-  const itineraryDays = Object.entries(itinerary).filter(([, ids]) => ids.length > 0);
-  if (itineraryDays.length > 0 && recommendations.length > 0) {
-    const totalPeople = trip.adults + (trip.children || 0);
-    checkPage(20);
-    doc.setFontSize(14);
-    doc.setTextColor(45, 45, 45);
-    doc.text("Day-by-Day Itinerary", margin, y);
-    y += 8;
-    doc.setFontSize(10);
-
-    let grandTotal = 0;
-
-    itineraryDays.sort().forEach(([dayKey, ids]) => {
-      checkPage(16);
-      const dayNum = dayKey.replace("day", "");
-
-      // Day date
-      let dayLabel = `Day ${dayNum}`;
-      if (trip.checkIn) {
-        const d = new Date(trip.checkIn);
-        d.setDate(d.getDate() + parseInt(dayNum) - 1);
-        dayLabel += ` — ${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
-      }
-
-      doc.setTextColor(255, 107, 107);
-      doc.setFontSize(11);
-      doc.text(dayLabel, margin, y);
-      y += 6;
-      doc.setFontSize(10);
-
-      let dayTotal = 0;
-
-      ids.forEach((id) => {
-        checkPage(14);
-        const act = recommendations.find((r) => r.id === id);
-        if (act) {
-          const groupCost = act.estimatedCostPerPerson * totalPeople;
-          dayTotal += groupCost;
-          const costStr = act.estimatedCostPerPerson > 0
-            ? `${s}${groupCost.toFixed(0)} (${s}${act.estimatedCostPerPerson}/pp)`
-            : "Free";
-
-          doc.setTextColor(45, 45, 45);
-          doc.text(`• ${act.name}`, margin + 4, y);
-          y += 5;
-          doc.setTextColor(120, 120, 120);
-          doc.setFontSize(9);
-          let meta = `${costStr} · ${act.duration}`;
-          if (act.category) meta += ` · ${act.category}`;
-          doc.text(meta, margin + 8, y);
-          y += 5;
-          if (act.mapsQuery) {
-            doc.setTextColor(100, 140, 200);
-            const loc = act.mapsQuery.length > 60 ? act.mapsQuery.substring(0, 60) + "..." : act.mapsQuery;
-            doc.text(`📍 ${loc}`, margin + 8, y);
-            y += 5;
-          }
-          doc.setFontSize(10);
-        }
-      });
-
-      grandTotal += dayTotal;
-      doc.setTextColor(255, 107, 107);
-      doc.setFontSize(9);
-      doc.text(`Day ${dayNum} total: ${s}${dayTotal.toFixed(0)}`, margin + 4, y);
-      y += 8;
-      doc.setFontSize(10);
-    });
-
-    // Grand total
-    checkPage(16);
-    doc.setDrawColor(230, 230, 230);
-    doc.line(margin, y, margin + contentW, y);
-    y += 6;
-    doc.setFontSize(11);
-    doc.setTextColor(45, 45, 45);
-    doc.text(`Total Itinerary Cost: ${s}${grandTotal.toFixed(0)}`, margin, y);
-    y += 6;
-    if (trip.allocations) {
-      const remaining = trip.allocations.activities.amount - grandTotal;
-      const color = remaining >= 0 ? [34, 139, 34] : [220, 50, 50];
-      doc.setTextColor(color[0], color[1], color[2]);
-      doc.text(`Activities Budget Remaining: ${s}${remaining.toFixed(0)}`, margin, y);
-      y += 10;
+  let grandTotal = 0;
+  const daysSections = itineraryDays.map(([dayKey, ids]) => {
+    const dayNum = dayKey.replace("day", "");
+    let dayLabel = `Day ${dayNum}`;
+    if (trip.checkIn) {
+      const d = new Date(trip.checkIn);
+      d.setDate(d.getDate() + parseInt(dayNum) - 1);
+      dayLabel += ` — ${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`;
     }
+
+    let dayTotal = 0;
+    const activities = ids
+      .map((id) => recommendations.find((r) => r.id === id))
+      .filter(Boolean)
+      .map((act) => {
+        const groupCost = act!.estimatedCostPerPerson * totalPeople;
+        dayTotal += groupCost;
+        const costStr = act!.estimatedCostPerPerson > 0
+          ? `${s}${groupCost.toFixed(0)} (${s}${act!.estimatedCostPerPerson}/pp)`
+          : "Free";
+        return `
+          <div style="margin-bottom:10px;">
+            <div style="font-weight:600;color:#2d2d2d;font-size:13px;">• ${act!.name}</div>
+            <div style="color:#888;font-size:11px;margin-left:12px;">${costStr} · ${act!.duration}${act!.category ? ` · ${act!.category}` : ""}</div>
+            ${act!.mapsQuery ? `<div style="color:#648cc8;font-size:11px;margin-left:12px;">📍 ${act!.mapsQuery}</div>` : ""}
+          </div>`;
+      })
+      .join("");
+
+    grandTotal += dayTotal;
+
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="font-weight:700;color:#ff6b6b;font-size:14px;margin-bottom:6px;">${dayLabel}</div>
+        ${activities}
+        <div style="font-size:11px;color:#ff6b6b;font-weight:600;margin-top:4px;">Day ${dayNum} total: ${s}${dayTotal.toFixed(0)}</div>
+      </div>`;
+  });
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Roamie Trip Plan — ${trip.destination}</title>
+<style>
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none !important; }
+    @page { margin: 20mm; }
   }
-
-  // Verdict
-  if (trip.verdict) {
-    checkPage(20);
-    doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    const lines = doc.splitTextToSize(`Roamie says: "${trip.verdict}"`, contentW);
-    doc.text(lines, margin, y);
-    y += lines.length * 5 + 6;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #2d2d2d;
+    background: #fff;
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
   }
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 3px solid #ff6b6b;
+  }
+  .header h1 {
+    font-size: 28px;
+    color: #ff6b6b;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  .header .destination {
+    font-size: 20px;
+    color: #2d2d2d;
+    font-weight: 600;
+  }
+  .header .date {
+    font-size: 11px;
+    color: #999;
+    margin-top: 6px;
+  }
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+  }
+  .detail-item {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .detail-label {
+    color: #999;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .budget-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .budget-card {
+    flex: 1;
+    min-width: 140px;
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .budget-card .label { font-size: 11px; color: #999; }
+  .budget-card .amount { font-size: 16px; font-weight: 700; color: #2d2d2d; }
+  .budget-card .pct { font-size: 11px; color: #ff6b6b; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th {
+    text-align: left;
+    color: #999;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 8px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .total-row {
+    font-weight: 700;
+    color: #ff6b6b;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  .itinerary-summary {
+    background: #fff5f5;
+    border: 1px solid #ffe0e0;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .itinerary-summary .big { font-size: 20px; font-weight: 700; color: #2d2d2d; }
+  .itinerary-summary .sub { font-size: 12px; color: #888; margin-top: 4px; }
+  .verdict {
+    background: #f9f9f9;
+    border-left: 4px solid #ff6b6b;
+    padding: 14px 18px;
+    font-style: italic;
+    color: #666;
+    font-size: 13px;
+    border-radius: 0 8px 8px 0;
+  }
+  .footer {
+    text-align: center;
+    color: #ccc;
+    font-size: 10px;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .print-btn {
+    display: block;
+    margin: 0 auto 24px;
+    background: #ff6b6b;
+    color: #fff;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .print-btn:hover { background: #e55a5a; }
+</style>
+</head>
+<body>
 
-  // Footer
-  checkPage(10);
-  doc.setFontSize(8);
-  doc.setTextColor(200, 200, 200);
-  doc.text("Generated by Roamie — Plan smart. Spend less. Roam more.", margin, y);
+<button class="print-btn no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
 
-  doc.save(`roamie-${trip.destination.replace(/\s+/g, "-").toLowerCase()}.pdf`);
+<div class="header">
+  <h1>🌍 Roamie Trip Plan</h1>
+  <div class="destination">${trip.destination}</div>
+  <div class="date">Exported ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</div>
+</div>
+
+<div class="section">
+  <div class="section-title">📋 Trip Details</div>
+  <div class="detail-grid">
+    <div class="detail-item"><span class="detail-label">From</span><br/>${trip.departure}</div>
+    <div class="detail-item"><span class="detail-label">Destination</span><br/>${trip.destination}</div>
+    <div class="detail-item"><span class="detail-label">Dates</span><br/>${trip.checkIn} → ${trip.checkOut} (${trip.nights} nights)</div>
+    <div class="detail-item"><span class="detail-label">Travellers</span><br/>${trip.adults} adult(s), ${trip.children} child(ren)</div>
+    <div class="detail-item"><span class="detail-label">Total Budget</span><br/><strong>${s}${trip.totalBudget.toFixed(2)} ${currency.code}</strong></div>
+    ${trip.feasibility ? `<div class="detail-item"><span class="detail-label">Feasibility</span><br/>${trip.feasibility}</div>` : ""}
+  </div>
+</div>
+
+${trip.allocations ? `
+<div class="section">
+  <div class="section-title">💰 Budget Allocation</div>
+  <div class="budget-bar">
+    ${allocationRows.map((c) => `
+      <div class="budget-card">
+        <div class="label">${c.name}</div>
+        <div class="amount">${s}${c.amount.toFixed(0)}</div>
+        <div class="pct">${c.percent}%</div>
+      </div>
+    `).join("")}
+  </div>
+</div>
+` : ""}
+
+${expenses.length > 0 ? `
+<div class="section">
+  <div class="section-title">🧾 Expense Log</div>
+  <table>
+    <thead><tr><th>Date</th><th>Category</th><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+    <tbody>
+      ${expenses.map((e) => `
+        <tr>
+          <td>${e.dateAdded || "—"}</td>
+          <td>${e.category}</td>
+          <td>${e.description}</td>
+          <td style="text-align:right">${s}${e.amount.toFixed(2)}</td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table>
+  <div class="total-row" style="margin-top:10px;">
+    Total Spent: ${s}${totalSpent.toFixed(2)} &nbsp;|&nbsp; Remaining: ${s}${(trip.totalBudget - totalSpent).toFixed(2)}
+  </div>
+</div>
+` : ""}
+
+${daysSections.length > 0 ? `
+<div class="section">
+  <div class="section-title">🗓️ Day-by-Day Itinerary</div>
+  ${daysSections.join("")}
+  <div class="itinerary-summary">
+    <div class="big">${s}${grandTotal.toFixed(0)}</div>
+    <div class="sub">Total Itinerary Cost</div>
+    ${trip.allocations ? `<div class="sub" style="color:${trip.allocations.activities.amount - grandTotal >= 0 ? '#22a' : '#d33'};font-weight:600;margin-top:4px;">Activities Budget Remaining: ${s}${(trip.allocations.activities.amount - grandTotal).toFixed(0)}</div>` : ""}
+  </div>
+</div>
+` : ""}
+
+${trip.verdict ? `
+<div class="section">
+  <div class="verdict">🤖 Roamie says: "${trip.verdict}"</div>
+</div>
+` : ""}
+
+<div class="footer">Generated by Roamie — Plan smart. Spend less. Roam more. 🌍</div>
+
+</body>
+</html>`;
+
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(html);
+    printWindow.document.close();
+  }
 }
