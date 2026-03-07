@@ -15,6 +15,25 @@ import BottomNav from "@/components/dashboard/BottomNav";
 import { Button } from "@/components/ui/button";
 import { exportTripPdf } from "@/lib/exportPdf";
 import NextStepGuide from "@/components/NextStepGuide";
+import TooltipTour from "@/components/TooltipTour";
+
+const dashboardTour = [
+  {
+    target: "[data-tour='budget-overview']",
+    title: "Your Budget at a Glance 💰",
+    description: "See how much you've spent vs. your total budget. The progress bar updates in real-time.",
+  },
+  {
+    target: "[data-tour='category-cards']",
+    title: "Track by Category 📊",
+    description: "Log expenses under Flights, Hotel, Activities, or Food. Tap the + button to add a spend.",
+  },
+  {
+    target: "[data-tour='next-step-explore']",
+    title: "Explore Activities Next 🎯",
+    description: "When you're ready, head to Explore to discover AI-recommended activities for your destination!",
+  },
+];
 
 interface Expense {
   id: string;
