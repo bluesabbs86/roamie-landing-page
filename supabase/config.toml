@@ -8,3 +8,15 @@ verify_jwt = false
 
 [functions.activity-recommendations]
 verify_jwt = false
+
+[functions.budget-estimate]
+verify_jwt = false
+
+[functions.money-tip]
+verify_jwt = false
+
+[functions.currency-convert]
+verify_jwt = false
+
+[functions.activity-autofill]
+verify_jwt = false
