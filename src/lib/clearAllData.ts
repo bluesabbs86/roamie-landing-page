@@ -7,8 +7,6 @@ export function clearAllRoamieData(navigate: (path: string) => void) {
   localStorage.removeItem("roamie:expenses");
   localStorage.removeItem("roamie:itinerary");
   localStorage.removeItem("roamie:recommendations");
-  localStorage.removeItem("roamie:active_itinerary_id");
-  sessionStorage.removeItem("roamie:session_saved");
   toast({ title: "All data cleared! Starting fresh 🧹" });
   navigate("/plan");
 }

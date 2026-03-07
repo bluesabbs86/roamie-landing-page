@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { useAutoSaveTrip } from "@/hooks/useAutoSaveTrip";
 import { useSyncTripData } from "@/hooks/useSyncTripData";
 import { useNavigate } from "react-router-dom";
 import { Currency, currencies } from "@/contexts/CurrencyContext";
@@ -69,8 +68,6 @@ const Explore = () => {
   // Sync trip data from localStorage (on mount + when page regains focus)
   useSyncTripData({ setTrip, setCurrency, setExpenses, setItinerary, setRecommendations });
 
-  // Auto-save back to database if loaded from saved trips
-  useAutoSaveTrip([itinerary, recommendations, expenses]);
 
   const { activitiesAllocated, activitiesSpent, activitiesRemaining, totalSpent, totalRemaining, budgetPerPerson } =
     useMemo(() => {

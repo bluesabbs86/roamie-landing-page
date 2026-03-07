@@ -7,12 +7,8 @@ import Index from "./pages/Index";
 import TripPlanner from "./pages/TripPlanner";
 import BudgetDashboard from "./pages/BudgetDashboard";
 import Explore from "./pages/Explore";
-import Auth from "./pages/Auth";
-import Account from "./pages/Account";
 import Privacy from "./pages/Privacy";
-import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -24,13 +20,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/plan" element={<ProtectedRoute><TripPlanner /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><BudgetDashboard /></ProtectedRoute>} />
-          <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+          <Route path="/plan" element={<TripPlanner />} />
+          <Route path="/dashboard" element={<BudgetDashboard />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

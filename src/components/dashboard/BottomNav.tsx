@@ -5,7 +5,6 @@ const tabs = [
   { key: "plan", icon: "✈️", label: "Plan", path: "/plan" },
   { key: "budget", icon: "💰", label: "Budget", path: "/dashboard" },
   { key: "explore", icon: "🎯", label: "Explore", path: "/explore" },
-  { key: "account", icon: "👤", label: "Account", path: "/account" },
 ];
 
 const BottomNav = () => {
