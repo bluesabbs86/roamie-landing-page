@@ -10,6 +10,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") !== "login");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -24,6 +25,28 @@ const Auth = () => {
       if (session) navigate("/account");
     });
   }, [navigate]);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      toast({ title: "Please enter your email", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Check your email for a reset link 📧" });
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      // Generic message to prevent account enumeration
+      toast({ title: "If that email exists, a reset link has been sent." });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,77 +90,130 @@ const Auth = () => {
         <div className="text-center mb-8">
           <RoamieLogo className="justify-center [&_span]:text-primary-foreground [&_svg]:text-primary-foreground [&_path]:stroke-white [&_circle]:fill-white" />
           <p className="text-primary-foreground/80 mt-2">
-            {isSignUp ? "Create your account to save trips" : "Sign in to your account"}
+            {isForgotPassword
+              ? "Reset your password"
+              : isSignUp
+              ? "Create your account to save trips"
+              : "Sign in to your account"}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-xl p-6 space-y-4">
-          {isSignUp && (
-            <>
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1.5">Full Name</label>
-                <Input
-                  className="rounded-xl"
-                  placeholder="Your name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-foreground mb-1.5">Nationality</label>
-                <Input
-                  className="rounded-xl"
-                  placeholder="e.g. American, British, Indian"
-                  value={nationality}
-                  onChange={(e) => setNationality(e.target.value)}
-                />
-              </div>
-            </>
-          )}
-          <div>
-            <label className="block text-sm font-semibold text-foreground mb-1.5">Email</label>
-            <Input
-              type="email"
-              className="rounded-xl"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-foreground mb-1.5">Password</label>
-            <Input
-              type="password"
-              className="rounded-xl"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
+        {isForgotPassword ? (
+          <form onSubmit={handleForgotPassword} className="bg-card rounded-2xl shadow-xl p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">Email</label>
+              <Input
+                type="email"
+                className="rounded-xl"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              We'll send you a link to reset your password.
+            </p>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full py-6 text-base font-bold"
-          >
-            {loading ? "Please wait..." : isSignUp ? "Create Account 🧡" : "Sign In →"}
-          </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-primary font-semibold hover:underline"
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full py-6 text-base font-bold"
             >
-              {isSignUp ? "Sign In" : "Sign Up"}
-            </button>
-          </p>
-        </form>
+              {loading ? "Sending..." : "Send Reset Link 📧"}
+            </Button>
+
+            <p className="text-center text-sm text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => setIsForgotPassword(false)}
+                className="text-primary font-semibold hover:underline"
+              >
+                ← Back to Sign In
+              </button>
+            </p>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-card rounded-2xl shadow-xl p-6 space-y-4">
+            {isSignUp && (
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Full Name</label>
+                  <Input
+                    className="rounded-xl"
+                    placeholder="Your name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">Nationality</label>
+                  <Input
+                    className="rounded-xl"
+                    placeholder="e.g. American, British, Indian"
+                    value={nationality}
+                    onChange={(e) => setNationality(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">Email</label>
+              <Input
+                type="email"
+                className="rounded-xl"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">Password</label>
+              <Input
+                type="password"
+                className="rounded-xl"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </div>
+
+            {!isSignUp && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full py-6 text-base font-bold"
+            >
+              {loading ? "Please wait..." : isSignUp ? "Create Account 🧡" : "Sign In →"}
+            </Button>
+
+            <p className="text-center text-sm text-muted-foreground">
+              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-primary font-semibold hover:underline"
+              >
+                {isSignUp ? "Sign In" : "Sign Up"}
+              </button>
+            </p>
+          </form>
+        )}
 
         <button
           onClick={() => navigate("/")}
