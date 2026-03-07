@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.trip-checklist]
 verify_jwt = false
+
+[functions.activity-recommendations]
+verify_jwt = false

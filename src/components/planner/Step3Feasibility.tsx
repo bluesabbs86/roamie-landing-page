@@ -7,6 +7,7 @@ import type { TripData } from "./Step1TripDetails";
 import type { Allocations } from "./Step2BudgetSplit";
 import { useNavigate } from "react-router-dom";
 import { exportTripPdf } from "@/lib/exportPdf";
+import { LogIn } from "lucide-react";
 
 interface Step3Props {
   tripData: TripData;
@@ -29,6 +30,7 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<FeasibilityResult | null>(null);
   const [error, setError] = useState(false);
+  const [needsAuth, setNeedsAuth] = useState(false);
 
   const fetchFeasibility = async () => {
     setLoading(true);
@@ -56,9 +58,13 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
       if (fnError) throw fnError;
       console.log("Feasibility result:", data);
       setResult(data as FeasibilityResult);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Feasibility error:", e);
-      setError(true);
+      if (e?.message?.includes("Unauthorized") || e?.context?.status === 401) {
+        setNeedsAuth(true);
+      } else {
+        setError(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -110,6 +116,33 @@ const Step3Feasibility = ({ tripData, allocations, onBack }: Step3Props) => {
         <p className="text-muted-foreground text-sm">
           Roamie is crunching your budget... 🧡
         </p>
+      </div>
+    );
+  }
+
+  if (needsAuth) {
+    return (
+      <div className="max-w-[500px] mx-auto text-center py-16">
+        <div className="bg-card rounded-2xl shadow-md p-8">
+          <LogIn className="w-10 h-10 text-primary mx-auto mb-4" />
+          <p className="text-lg font-display font-bold text-foreground mb-2">
+            Sign in to unlock your feasibility check 🔒
+          </p>
+          <p className="text-muted-foreground text-sm mb-6">
+            Create a free account to get AI-powered budget analysis for your trip.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button variant="outline" onClick={onBack} className="rounded-full px-6">
+              ← Back
+            </Button>
+            <Button
+              onClick={() => navigate("/auth")}
+              className="bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full px-8"
+            >
+              Sign in / Sign up
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }

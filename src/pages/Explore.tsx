@@ -64,6 +64,7 @@ const Explore = () => {
   const [itinerary, setItinerary] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [needsAuth, setNeedsAuth] = useState(false);
   const [activeTier, setActiveTier] = useState("budget");
 
   // Sync trip data from localStorage (on mount + when page regains focus)
@@ -120,9 +121,13 @@ const Explore = () => {
       } else {
         throw new Error("Invalid response format");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Recommendations error:", e);
-      setError(true);
+      if (e?.message?.includes("Unauthorized") || e?.context?.status === 401) {
+        setNeedsAuth(true);
+      } else {
+        setError(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -252,6 +257,22 @@ const Explore = () => {
         {/* Recommendations Grid */}
         {loading ? (
           <ExploreLoadingAnimation destination={trip.destination} />
+        ) : needsAuth ? (
+          <div className="text-center py-12">
+            <span className="text-5xl">🔒</span>
+            <p className="font-display font-bold text-foreground mt-3">
+              Sign in to explore activities
+            </p>
+            <p className="text-muted-foreground text-sm mt-1 mb-4">
+              Create a free account to get AI-powered activity recommendations.
+            </p>
+            <Button
+              onClick={() => navigate("/auth")}
+              className="bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-full px-8"
+            >
+              Sign in / Sign up
+            </Button>
+          </div>
         ) : error ? (
           <div className="text-center py-12">
             <span className="text-5xl">😅</span>
