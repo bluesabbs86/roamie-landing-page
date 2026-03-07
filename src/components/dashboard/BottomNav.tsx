@@ -5,6 +5,7 @@ const tabs = [
   { key: "plan", icon: "✈️", label: "Plan", path: "/plan" },
   { key: "budget", icon: "💰", label: "Budget", path: "/dashboard" },
   { key: "explore", icon: "🎯", label: "Explore", path: "/explore" },
+  { key: "blog", icon: "📝", label: "Blog", path: "/#blog" },
 ];
 
 const BottomNav = () => {
@@ -13,7 +14,23 @@ const BottomNav = () => {
 
   const isActive = (path: string | null) => {
     if (!path) return false;
+    if (path === "/#blog") return location.pathname === "/" && location.hash === "#blog";
     return location.pathname === path;
+  };
+
+  const handleNav = (path: string) => {
+    if (path === "/#blog") {
+      if (location.pathname === "/") {
+        document.getElementById("blog")?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        navigate("/");
+        setTimeout(() => {
+          document.getElementById("blog")?.scrollIntoView({ behavior: "smooth" });
+        }, 300);
+      }
+    } else {
+      navigate(path);
+    }
   };
 
   return (
@@ -27,7 +44,7 @@ const BottomNav = () => {
             <button
               key={tab.key}
               onClick={() => {
-                if (tab.path) navigate(tab.path);
+                if (tab.path) handleNav(tab.path);
               }}
               disabled={disabled}
               className={`flex flex-col items-center gap-0.5 px-4 py-2 transition-colors ${

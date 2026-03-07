@@ -18,6 +18,12 @@ import {
   Umbrella,
 } from "lucide-react";
 
+import destinationKyoto from "@/assets/destination-kyoto.jpg";
+import destinationPatagonia from "@/assets/destination-patagonia.jpg";
+import destinationVietnam from "@/assets/destination-vietnam.jpg";
+import destinationMexico from "@/assets/destination-mexico.jpg";
+import destinationGreece from "@/assets/destination-greece.jpg";
+
 const whyRoamie = [
   {
     icon: PiggyBank,
@@ -86,6 +92,7 @@ const vacationIdeas = [
     destination: "Kyoto, Japan · Rome, Italy",
     text: "Immerse yourself in history — ancient temples, serene gardens, endless art and archaeology.",
     gradient: "from-coral/15 to-sunset/10",
+    image: destinationKyoto,
   },
   {
     icon: TreePine,
@@ -93,6 +100,7 @@ const vacationIdeas = [
     destination: "Patagonia · Norway Fjords",
     text: "Reconnect with the outdoors — dramatic landscapes, glaciers, and pristine wilderness.",
     gradient: "from-green-500/10 to-emerald-500/10",
+    image: destinationPatagonia,
   },
   {
     icon: Backpack,
@@ -100,6 +108,7 @@ const vacationIdeas = [
     destination: "Vietnam · Thailand",
     text: "Southeast Asia offers incredible food, rich culture, and amazing value for every traveler.",
     gradient: "from-amber-500/10 to-yellow-500/10",
+    image: destinationVietnam,
   },
   {
     icon: UtensilsCrossed,
@@ -107,6 +116,7 @@ const vacationIdeas = [
     destination: "Mexico City · Lisbon, Portugal",
     text: "Take a culinary tour — vibrant street food, bustling markets, and unforgettable flavors.",
     gradient: "from-orange-500/10 to-red-400/10",
+    image: destinationMexico,
   },
   {
     icon: Umbrella,
@@ -114,6 +124,7 @@ const vacationIdeas = [
     destination: "Greek Islands",
     text: "Stunning sunsets and crystal-clear waters — perfect for a digital detox and total unwind.",
     gradient: "from-sky-500/10 to-blue-400/10",
+    image: destinationGreece,
   },
 ];
 
@@ -206,7 +217,7 @@ const BlogSection = () => {
         </div>
       </div>
 
-      {/* Vacation Ideas */}
+      {/* Vacation Ideas with Images */}
       <div className="bg-background py-20 md:py-24">
         <div className="container mx-auto px-6">
           <motion.div {...cardAnim} transition={{ duration: 0.5 }} className="text-center mb-14">
@@ -222,14 +233,27 @@ const BlogSection = () => {
                 key={idea.title}
                 {...cardAnim}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
-                className={`rounded-2xl p-7 border border-border/50 shadow-sm bg-gradient-to-br ${idea.gradient} hover:shadow-md transition-shadow`}
+                className="rounded-2xl border border-border/50 shadow-sm hover:shadow-lg transition-shadow overflow-hidden bg-card group"
               >
-                <div className="w-12 h-12 rounded-xl bg-card/80 backdrop-blur-sm flex items-center justify-center mb-4 shadow-sm">
-                  <idea.icon className="h-6 w-6 text-primary" />
+                <div className="relative h-44 overflow-hidden">
+                  <img
+                    src={idea.image}
+                    alt={`${idea.title} - ${idea.destination}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
+                      <idea.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <span className="text-xs font-semibold text-white/90">{idea.destination}</span>
+                  </div>
                 </div>
-                <h4 className="font-display text-lg font-bold text-foreground mb-1">{idea.title}</h4>
-                <p className="text-xs font-semibold text-secondary mb-2">{idea.destination}</p>
-                <p className="text-muted-foreground text-sm leading-relaxed">{idea.text}</p>
+                <div className="p-5">
+                  <h4 className="font-display text-lg font-bold text-foreground mb-1">{idea.title}</h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{idea.text}</p>
+                </div>
               </motion.div>
             ))}
           </div>
